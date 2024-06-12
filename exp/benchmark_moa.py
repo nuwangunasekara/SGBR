@@ -101,7 +101,7 @@ def main(exp_config_file = None):
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
-    final_results_file = os.path.join(output_dir, 'final_results.csv')
+    final_results_file = os.path.join(output_dir, 'final_results.txt')
     with open(final_results_file, 'a', newline='') as final_results_csv:
         write_header = True
         header_line_from_1st_valid_csv = None
