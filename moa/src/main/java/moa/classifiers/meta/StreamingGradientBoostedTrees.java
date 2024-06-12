@@ -85,7 +85,8 @@ public class StreamingGradientBoostedTrees extends AbstractClassifier implements
     public IntOption randomlySkip1SthOfInstancesAtTraining = new IntOption("randomlySkip1SthOfInstancesAtTraining", 'S',
             "Randomly skip 1/S th of instances at training (S=1: No Skip, use all instances for training).", 1, 1, Integer.MAX_VALUE);
     public FlagOption useSquaredLossForClassification = new FlagOption("useSquaredLossForClassification", 'K', "Use Squared Loss for Classification.");
-    public IntOption randomSeedOption = new IntOption("randomSeed", 'r', "The random seed", 1);
+    public IntOption randomSeedOption = new IntOption("randomSeed", 'Z', "The random seed", 1);
+    public FlagOption useSingleThreadForPrediction = new FlagOption("useSingleThreadForPrediction", 't', "Use single thread for prediction.");
     //endregion ================ OPTIONS ================
 
     //region ================ VARIABLES ================
@@ -322,6 +323,7 @@ public class StreamingGradientBoostedTrees extends AbstractClassifier implements
         base.multipleIterationByCeilingOfHessianTimesM.setValue(multipleIterationByCeilingOfHessianTimesM.getValue());
         base.randomlySkip1SthOfInstancesAtTraining.setValue(randomlySkip1SthOfInstancesAtTraining.getValue());
         base.useSquaredLossForClassification.setValue(useSquaredLossForClassification.isSet());
+        base.useSingleThreadForPrediction.setValue(useSingleThreadForPrediction.isSet());
 
         SGBTCommittee = new SGBT[numSGBTs];
         for (int i = 0; i < SGBTCommittee.length; i++) {
@@ -367,6 +369,8 @@ public class StreamingGradientBoostedTrees extends AbstractClassifier implements
             public IntOption randomlySkip1SthOfInstancesAtTraining = new IntOption("randomlySkip1SthOfInstancesAtTraining", 'S',
                     "Randomly skipp 1/S th of instances at training (S=1: No Skip, use all instances for training).", 1, 1, Integer.MAX_VALUE);
             public FlagOption useSquaredLossForClassification = new FlagOption("useSquaredLossForClassification", 'K', "Use Squared Loss for Classification.");
+        public FlagOption useSingleThreadForPrediction = new FlagOption("useSingleThreadForPrediction", 't', "Use single thread for prediction.");
+
             // endregion ================ SGBT OPTIONS ================
 
             // region ================ SGBT VARIABLES ================
@@ -443,6 +447,7 @@ public class StreamingGradientBoostedTrees extends AbstractClassifier implements
                     mObjective = new SquaredError();
                     committeeSize = 1;
                 }
+
 
                 for (int i = 0; i < numberOfboostingIterations.getValue(); i++) {
                     booster.add(new BoostingCommittee(this.baseLearner, committeeSize));
@@ -553,9 +558,14 @@ public class StreamingGradientBoostedTrees extends AbstractClassifier implements
                 if (booster.size() == 1) {
                     s[0] = getScoreFromSubInstance(inst, subSpacesForEachBoostingIteration.get(0), true, booster.get(0), useOneHotEncoding.isSet());
                 } else {
+                    if (useSingleThreadForPrediction.isSet()){
+                        IntStream.range(0, booster.size())
+                                .forEach(m -> s[m] = getScoreFromSubInstance(inst, subSpacesForEachBoostingIteration.get(m), true, booster.get(m), useOneHotEncoding.isSet()));
+                } else {
                         IntStream.range(0, booster.size())
                                 .parallel()
                                 .forEach(m -> s[m] = getScoreFromSubInstance(inst, subSpacesForEachBoostingIteration.get(m), true, booster.get(m), useOneHotEncoding.isSet()));
+                }
                 }
                 for (int i = 0; i < booster.size(); i++) {
                     rawScore.addValues(s[i]);
