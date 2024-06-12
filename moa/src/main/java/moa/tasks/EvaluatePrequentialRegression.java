@@ -189,6 +189,7 @@ public class EvaluatePrequentialRegression extends RegressionMainTask {
         }
         boolean firstDump = true;
         boolean preciseCPUTiming = TimingUtils.enablePreciseTiming();
+        long evaluateStartTimeCPUWall =  System.currentTimeMillis();
         long evaluateStartTime = TimingUtils.getNanoCPUTimeOfCurrentThread();
         long lastEvaluateStartTime = evaluateStartTime;
         double RAMHours = 0.0;
@@ -212,7 +213,9 @@ public class EvaluatePrequentialRegression extends RegressionMainTask {
             instancesProcessed++;
             if (instancesProcessed % this.sampleFrequencyOption.getValue() == 0
                     || stream.hasMoreInstances() == false) {
+                long evaluateTimeCPUWall =  System.currentTimeMillis();
                 long evaluateTime = TimingUtils.getNanoCPUTimeOfCurrentThread();
+                double timeCPUWall = (evaluateTimeCPUWall - evaluateStartTimeCPUWall) / 1000F;
                 double time = TimingUtils.nanoTimeToSeconds(evaluateTime - evaluateStartTime);
                 double timeIncrement = TimingUtils.nanoTimeToSeconds(evaluateTime - lastEvaluateStartTime);
                 double RAMHoursIncrement = learner.measureByteSize() / (1024.0 * 1024.0 * 1024.0); //GBs
@@ -229,6 +232,9 @@ public class EvaluatePrequentialRegression extends RegressionMainTask {
                             + (preciseCPUTiming ? "cpu "
                             : "") + "seconds)",
                             time),
+                            new Measurement(
+                            "evaluation time (wall) (seconds)",
+                            timeCPUWall),
                             new Measurement(
                             "model cost (RAM-Hours)",
                             RAMHours)
