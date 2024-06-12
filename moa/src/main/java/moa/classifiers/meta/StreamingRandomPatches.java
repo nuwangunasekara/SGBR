@@ -32,6 +32,7 @@ import moa.capabilities.ImmutableCapabilities;
 import moa.classifiers.AbstractClassifier;
 import moa.classifiers.Classifier;
 import moa.classifiers.MultiClassClassifier;
+import moa.classifiers.Regressor;
 import moa.classifiers.core.driftdetection.ChangeDetector;
 import moa.core.*;
 import moa.evaluation.BasicClassificationPerformanceEvaluator;
@@ -39,6 +40,7 @@ import moa.options.ClassOption;
 
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.stream.IntStream;
 
 /**
  * Streaming Random Patches
@@ -70,7 +72,7 @@ import java.util.Random;
  * @author Heitor Murilo Gomes (heitor dot gomes at waikato dot ac dot nz)
  * @version $Revision: 1 $
  */
-public class StreamingRandomPatches extends AbstractClassifier implements MultiClassClassifier,
+public class StreamingRandomPatches extends AbstractClassifier implements MultiClassClassifier, Regressor,
         CapabilitiesHandler {
 
     private static final long serialVersionUID = 1L;
@@ -118,6 +120,10 @@ public class StreamingRandomPatches extends AbstractClassifier implements MultiC
     public FlagOption disableBackgroundLearnerOption = new FlagOption("disableBackgroundLearner", 'q',
             "Should use bkg learner? If disabled, then trees are reset immediately.");
 
+    public IntOption randomSeedOption = new IntOption("randomSeed", 'Z', "The random seed", 1);
+
+    public FlagOption parallelTrain = new FlagOption("parallelTrain", 'T', "Parallel train");
+
     public static final int TRAIN_RANDOM_SUBSPACES = 0;
     public static final int TRAIN_RESAMPLING = 1;
     public static final int TRAIN_RANDOM_PATCHES = 2;
@@ -131,40 +137,69 @@ public class StreamingRandomPatches extends AbstractClassifier implements MultiC
     protected long instancesSeen;
     protected ArrayList<ArrayList<Integer>> subspaces;
 
+
     @Override
     public void resetLearningImpl() {
+        this.classifierRandom = new Random(randomSeedOption.getValue());
         this.instancesSeen = 0;
     }
 
+    public static void trainClassifierOnInstance(
+            Instance instance,
+            StreamingRandomPatches.StreamingRandomPatchesClassifier srpLearner,
+            int trainingMethod,
+            Random classifierRandom,
+            int k,
+            long instancesSeen
+    )
+    {
+        double[] rawVote = srpLearner.getVotesForInstance(instance);
+        DoubleVector vote = new DoubleVector(rawVote);
+        InstanceExample example = new InstanceExample(instance);
+
+        if(instance.classAttribute().isNumeric()){
+
+        }else{
+            srpLearner.evaluator.addResult(example, vote.getArrayRef());
+        }
+        // Train using random subspaces without resampling, i.e. all instances are used for training.
+        if(trainingMethod == TRAIN_RANDOM_SUBSPACES) {
+            srpLearner.trainOnInstance(instance,1, instancesSeen, classifierRandom);
+        }
+        // Train using random patches or resampling, thus we simulate online bagging with poisson(lambda=...)
+        else {
+            if (k > 0) {
+                double weight = k;
+                srpLearner.trainOnInstance(instance, weight, instancesSeen, classifierRandom);
+            }
+        }
+    }
     @Override
     public void trainOnInstanceImpl(Instance instance) {
         ++this.instancesSeen;
-        if(this.ensemble == null)
+        if (this.ensemble == null)
             initEnsemble(instance);
 
-        for (int i = 0 ; i < this.ensemble.length ; i++) {
-            double[] rawVote = this.ensemble[i].getVotesForInstance(instance);
-            DoubleVector vote = new DoubleVector(rawVote);
-            InstanceExample example = new InstanceExample(instance);
+        int[] k = new int[this.ensemble.length];
 
-            this.ensemble[i].evaluator.addResult(example, vote.getArrayRef());
-            // Train using random subspaces without resampling, i.e. all instances are used for training.
-            if(this.trainingMethodOption.getChosenIndex() == TRAIN_RANDOM_SUBSPACES) {
-                this.ensemble[i].trainOnInstance(instance,1, this.instancesSeen, this.classifierRandom);
-            }
-            // Train using random patches or resampling, thus we simulate online bagging with poisson(lambda=...)
-            else {
-                int k = MiscUtils.poisson(this.lambdaOption.getValue(), this.classifierRandom);
-                if (k > 0) {
-                    double weight = k;
-                    this.ensemble[i].trainOnInstance(instance, weight, this.instancesSeen, this.classifierRandom);
-                }
+        IntStream.range(0, this.ensemble.length)
+                .forEach(i -> k[i] = MiscUtils.poisson(this.lambdaOption.getValue(), this.classifierRandom));
+
+        if (this.parallelTrain.isSet()) {
+            IntStream.range(0, this.ensemble.length)
+                    .parallel()
+                    .forEach(i -> trainClassifierOnInstance(instance, this.ensemble[i], this.trainingMethodOption.getChosenIndex(), this.classifierRandom, k[i], this.instancesSeen));
+        } else{
+            for (int i = 0; i < this.ensemble.length; i++) {
+                trainClassifierOnInstance(instance, this.ensemble[i], this.trainingMethodOption.getChosenIndex(), this.classifierRandom, k[i], this.instancesSeen);
             }
         }
     }
 
     @Override
     public double[] getVotesForInstance(Instance instance) {
+        boolean regression = instance.classAttribute().isNumeric();
+        double sumOfPredictions = 0;
         Instance testInstance = instance.copy();
         testInstance.setMissing(instance.classAttribute());
         testInstance.setClassValue(0.0);
@@ -173,19 +208,24 @@ public class StreamingRandomPatches extends AbstractClassifier implements MultiC
         DoubleVector combinedVote = new DoubleVector();
 
         for(int i = 0 ; i < this.ensemble.length ; ++i) {
-            DoubleVector vote = new DoubleVector(this.ensemble[i].getVotesForInstance(testInstance));
-            if (vote.sumOfValues() > 0.0) {
-                vote.normalize();
-                double acc = this.ensemble[i].evaluator.getPerformanceMeasurements()[1].getValue();
-                if(!this.disableWeightedVote.isSet() && acc > 0.0) {
-                    for(int v = 0 ; v < vote.numValues() ; ++v) {
-                        vote.setValue(v, vote.getValue(v) * acc);
+            if (regression){
+                double preds [] = this.ensemble[i].getVotesForInstance(testInstance);
+                sumOfPredictions += preds.length > 0 ? preds[0] : 0.0;
+            }else {
+                DoubleVector vote = new DoubleVector(this.ensemble[i].getVotesForInstance(testInstance));
+                if (vote.sumOfValues() > 0.0) {
+                    vote.normalize();
+                    double acc =  this.ensemble[i].evaluator.getPerformanceMeasurements()[1].getValue();
+                    if (!this.disableWeightedVote.isSet() && acc > 0.0) {
+                        for (int v = 0; v < vote.numValues(); ++v) {
+                            vote.setValue(v, vote.getValue(v) * acc);
+                        }
                     }
+                    combinedVote.addValues(vote);
                 }
-                combinedVote.addValues(vote);
             }
         }
-        return combinedVote.getArrayRef();
+        return regression ? new double[]{sumOfPredictions/this.ensemble.length} : combinedVote.getArrayRef();
     }
 
     @Override
@@ -395,6 +435,10 @@ public class StreamingRandomPatches extends AbstractClassifier implements MultiC
         public int numberOfDriftsInduced;
         public int numberOfWarningsInduced;
 
+        private double examplesSeen;
+        private double sumOfSquares;
+        private double sumOfValues;
+
         private void init(int indexOriginal, Classifier instantiatedClassifier,
                           BasicClassificationPerformanceEvaluator evaluatorInstantiated,
                           long instancesSeen, boolean disableBkgLearner, boolean disableDriftDetector,
@@ -497,6 +541,9 @@ public class StreamingRandomPatches extends AbstractClassifier implements MultiC
         }
 
         public void reset(Instance instance, long instancesSeen, Random random) {
+            this.examplesSeen = 0.0;
+            this.sumOfValues = 0.0;
+            this.sumOfSquares = 0.0;
 
             if(!this.disableBkgLearner && this.bkgLearner != null) {
                 this.classifier = this.bkgLearner.classifier;
@@ -530,8 +577,31 @@ public class StreamingRandomPatches extends AbstractClassifier implements MultiC
             }
         }
 
+        public double normalizeTargetValue(double value) {
+            if (examplesSeen > 1) {
+                double sd = Math.sqrt((sumOfSquares - ((sumOfValues * sumOfValues)/examplesSeen))/examplesSeen);
+                double average = sumOfValues / examplesSeen;
+                if (sd > 0 && examplesSeen > 1)
+                    return (value - average) / (3 * sd);
+                else
+                    return 0.0;
+            }
+            return 0.0;
+        }
+
+        public double getNormalizedError(Instance inst, double prediction) {
+            examplesSeen += inst.weight();
+            sumOfValues += inst.weight() * inst.classValue();
+            sumOfSquares += inst.weight() * inst.classValue() * inst.classValue();
+
+            double normalPrediction = normalizeTargetValue(prediction);
+            double normalValue = normalizeTargetValue(inst.classValue());
+            return Math.abs(normalValue - normalPrediction);
+        }
         public void trainOnInstance(Instance instance, double weight, long instancesSeen, Random random) {
             boolean correctlyClassifies;
+            double input = 0.0;
+            boolean regression = instance.classAttribute().isNumeric();
             // The subset object will be null if we are training with all features
             if(this.subset != null) {
                 // Selecting just the subset of features that we are going to use
@@ -539,7 +609,12 @@ public class StreamingRandomPatches extends AbstractClassifier implements MultiC
 
                 // After prepareRandomSubspaceInstance, index 0 of subset holds the instance with this learner subspaces
                 this.classifier.trainOnInstance(this.subset.get(0));
-                correctlyClassifies = this.classifier.correctlyClassifies(this.subset.get(0));
+                if (regression){
+                    input = getNormalizedError(this.subset.get(0), this.classifier.getVotesForInstance(this.subset.get(0))[0]);
+                }else{
+                    correctlyClassifies = this.classifier.correctlyClassifies(this.subset.get(0));
+                    input = correctlyClassifies ? 0.0 : 1.0;
+                }
                 if(this.bkgLearner != null)
                     this.bkgLearner.trainOnInstance(instance, weight, instancesSeen, random);
             }
@@ -547,7 +622,12 @@ public class StreamingRandomPatches extends AbstractClassifier implements MultiC
                 Instance weightedInstance = instance.copy();
                 weightedInstance.setWeight(instance.weight() * weight);
                 this.classifier.trainOnInstance(weightedInstance);
-                correctlyClassifies = this.classifier.correctlyClassifies(instance);
+                if (regression){
+                    input = getNormalizedError(this.subset.get(0), this.classifier.getVotesForInstance(instance)[0]);
+                }else {
+                    correctlyClassifies = this.classifier.correctlyClassifies(instance);
+                    input = correctlyClassifies ? 0.0 : 1.0;
+                }
                 if(this.bkgLearner != null)
                     this.bkgLearner.trainOnInstance(instance, weight, instancesSeen, random);
             }
@@ -557,7 +637,7 @@ public class StreamingRandomPatches extends AbstractClassifier implements MultiC
                 // Check for warning only if useBkgLearner is active
                 if (!this.disableBkgLearner) {
                     // Update the warning detection method
-                    this.warningDetectionMethod.input(correctlyClassifies ? 0 : 1);
+                    this.warningDetectionMethod.input(input);
                     // Check if there was a change
                     if (this.warningDetectionMethod.getChange()) {
                         this.numberOfWarningsDetected++;
@@ -567,7 +647,7 @@ public class StreamingRandomPatches extends AbstractClassifier implements MultiC
 
                 /*********** drift detection ***********/
                 // Update the DRIFT detection method
-                this.driftDetectionMethod.input(correctlyClassifies ? 0 : 1);
+                this.driftDetectionMethod.input(input);
                 // Check if there was a change
                 if (this.driftDetectionMethod.getChange()) {
                     this.numberOfDriftsDetected++;
