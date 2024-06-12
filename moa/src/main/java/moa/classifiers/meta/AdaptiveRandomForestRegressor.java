@@ -33,6 +33,8 @@ import moa.core.MiscUtils;
 import moa.evaluation.BasicRegressionPerformanceEvaluator;
 import moa.options.ClassOption;
 
+import java.util.Random;
+
 /**
  * Implementation of AdaptiveRandomForestRegressor, an extension of AdaptiveRandomForest for classification.
  *
@@ -81,6 +83,7 @@ public class AdaptiveRandomForestRegressor extends AbstractClassifier implements
     public FlagOption disableBackgroundLearnerOption = new FlagOption("disableBackgroundLearner", 'q',
             "Should use bkg learner? If disabled then reset tree immediately.");
 
+    public IntOption randomSeedOption = new IntOption("randomSeed", 'Z', "The random seed", 1);
     protected static final int FEATURES_M = 0;
     protected static final int FEATURES_SQRT = 1;
     protected static final int FEATURES_SQRT_INV = 2;
@@ -97,6 +100,7 @@ public class AdaptiveRandomForestRegressor extends AbstractClassifier implements
         this.ensemble = null;
         this.subspaceSize = 0;
         this.instancesSeen = 0;
+        this.classifierRandom = new Random(randomSeedOption.getValue());
         this.evaluator = new BasicRegressionPerformanceEvaluator();
     }
 
