@@ -1,0 +1,16 @@
+{
+  "moa_jar": "./moa.jar",
+  "java_options":"-Xmx12g -Xms50m -Xss1g moa.DoTask",
+  "output_dir":"./output_stats/",
+  "evaluator": "EvaluatePrequentialRegression -e (WindowRegressionPerformanceEvaluator -w 10000) -f 10000 -q 10000",
+  "dataset_dir":"./RDatasets/",
+  "datasets":["hyperA"],
+  "streams": {"<dataset_name>": "stream_command","random_seed_options": ["-r"]},
+  "random_seeds": [1,2,3],
+  "learners":[
+    ["SGBT(Oza(FIRTDD))", "Z",  "meta.StreamingGradientBoostedTrees -t -L 1.0 -m 75 -s 10 -l (meta.OzaBag -s 10 -l (trees.FIMTDD -s VarianceReductionSplitCriterion -g 50 -c 0.01 -e))"],
+    ["SOKNL(FIRTDD)", "Z",  "meta.SelfOptimisingKNearestLeaves -s 100 -l (SelfOptimisingBaseTree -s VarianceReductionSplitCriterion -g 50 -c 0.01) -x (ADWINChangeDetector -a 0.001) -p (ADWINChangeDetector -a 0.01)"],
+    ["ARFReg(FIRTDD)", "Z",  "meta.AdaptiveRandomForestRegressor -s 100 -x (ADWINChangeDetector -a 0.001) -p (ADWINChangeDetector -a 0.01)"],
+    ["Oza(FIRTDD)", "Z",  "meta.OzaBag -s 100 -l (trees.FIMTDD -s VarianceReductionSplitCriterion -g 50 -c 0.01 -e)"]
+  ]
+}

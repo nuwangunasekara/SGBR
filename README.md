@@ -1,3 +1,20 @@
+# Run experiments
+## Setup
+### go to exp folder
+``cd exp``
+### create output folders
+``mkdir outout output_stats``
+### go to dataset folder
+``cd RDatasets``
+### Unzip hyperA.arff.zip
+``unzip hyperA.arff.zip``
+### go level up (at exp)
+``cd ..``
+## Run Wall time experiments
+```python benchmark_moa.py exp_config.json```
+### Run periodic stats experiments
+```python benchmark_moa.py exp_config_overTime.json```
+
 # MOA (Massive Online Analysis)
 [![Build Status](https://travis-ci.org/Waikato/moa.svg?branch=master)](https://travis-ci.org/Waikato/moa)
 [![Maven Central](https://img.shields.io/maven-central/v/nz.ac.waikato.cms.moa/moa-pom.svg)](https://mvnrepository.com/artifact/nz.ac.waikato.cms)
