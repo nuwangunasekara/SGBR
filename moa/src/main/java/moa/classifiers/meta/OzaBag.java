@@ -19,6 +19,8 @@
  */
 package moa.classifiers.meta;
 
+import com.github.javacliparser.FlagOption;
+import com.github.javacliparser.FloatOption;
 import moa.capabilities.CapabilitiesHandler;
 import moa.capabilities.Capability;
 import moa.capabilities.ImmutableCapabilities;
@@ -27,11 +29,14 @@ import moa.classifiers.Classifier;
 import com.yahoo.labs.samoa.instances.Instance;
 
 import moa.classifiers.MultiClassClassifier;
-import moa.core.DoubleVector;
-import moa.core.Measurement;
-import moa.core.MiscUtils;
+import moa.classifiers.Regressor;
+import moa.core.*;
+import moa.evaluation.WindowRegressionPerformanceEvaluator;
 import moa.options.ClassOption;
 import com.github.javacliparser.IntOption;
+
+import java.util.*;
+import java.util.stream.IntStream;
 
 /**
  * Incremental on-line bagging of Oza and Russell.
@@ -53,7 +58,7 @@ import com.github.javacliparser.IntOption;
  * @author Richard Kirkby (rkirkby@cs.waikato.ac.nz)
  * @version $Revision: 7 $
  */
-public class OzaBag extends AbstractClassifier implements MultiClassClassifier,
+public class OzaBag extends AbstractClassifier implements MultiClassClassifier, Regressor,
                                                           CapabilitiesHandler {
 
     @Override
@@ -69,41 +74,134 @@ public class OzaBag extends AbstractClassifier implements MultiClassClassifier,
     public IntOption ensembleSizeOption = new IntOption("ensembleSize", 's',
             "The number of models in the bag.", 10, 1, Integer.MAX_VALUE);
 
+    public IntOption randomSeedOption = new IntOption("randomSeed", 'Z', "The random seed", 1);
+
+    public FlagOption parallelTrain = new FlagOption("parallelTrain", 'T', "Parallel train");
+
+    public FloatOption usePercentageOfLearnersForPrediction = new FloatOption("usePercentageOfLearnersForPrediction", 'p',
+            "Use best performing top p percent", 1.0, 0.1, 1.0);
+
     protected Classifier[] ensemble;
+    protected WindowRegressionPerformanceEvaluator[] evaluators;
+    private boolean canUseBestPerforming = false;
 
     @Override
     public void resetLearningImpl() {
+        this.classifierRandom = new Random(randomSeedOption.getValue());
         this.ensemble = new Classifier[this.ensembleSizeOption.getValue()];
+        this.evaluators = new WindowRegressionPerformanceEvaluator[this.ensembleSizeOption.getValue()];
         Classifier baseLearner = (Classifier) getPreparedClassOption(this.baseLearnerOption);
         baseLearner.resetLearning();
         for (int i = 0; i < this.ensemble.length; i++) {
             this.ensemble[i] = baseLearner.copy();
+            this.evaluators[i] = new WindowRegressionPerformanceEvaluator();
+        }
+    }
+
+    public static void trainClassifierOnInstance (Instance inst,
+                                                  Classifier classifier,
+                                                  int k,
+                                                  WindowRegressionPerformanceEvaluator evaluator,
+                                                  double useBestPerforming)
+    {
+//        int k = MiscUtils.poisson(1.0, classifierRandom);
+        if (k > 0) {
+            Instance weightedInst = (Instance) inst.copy();
+            weightedInst.setWeight(inst.weight() * k);
+            classifier.trainOnInstance(weightedInst);
+        }
+        if(useBestPerforming < 1.0){
+            evaluator.addResult(new InstanceExample(inst), classifier.getPredictionForInstance(inst));
         }
     }
 
     @Override
     public void trainOnInstanceImpl(Instance inst) {
-        for (int i = 0; i < this.ensemble.length; i++) {
-            int k = MiscUtils.poisson(1.0, this.classifierRandom);
-            if (k > 0) {
-                Instance weightedInst = (Instance) inst.copy();
-                weightedInst.setWeight(inst.weight() * k);
-                this.ensemble[i].trainOnInstance(weightedInst);
+        int[] k = new int[this.ensemble.length];
+
+        IntStream.range(0, this.ensemble.length)
+                .forEach(i -> k[i] = MiscUtils.poisson(1.0, this.classifierRandom));
+
+        // train each learner
+        if (this.parallelTrain.isSet()) {
+            IntStream.range(0, this.ensemble.length)
+                    .parallel()
+                    .forEach(i -> trainClassifierOnInstance(
+                                                            inst,
+                                                            this.ensemble[i],
+                                                            k[i],
+                                                            this.evaluators[i],
+                                                            usePercentageOfLearnersForPrediction.getValue())
+                    );
+        }else{
+            for (int i = 0; i < this.ensemble.length; i++) {
+                trainClassifierOnInstance(
+                                            inst,
+                                            this.ensemble[i],
+                                            k[i],
+                                            this.evaluators[i],
+                                            usePercentageOfLearnersForPrediction.getValue());
             }
+        }
+
+        if (usePercentageOfLearnersForPrediction.getValue() < 1.0) {
+            if (!canUseBestPerforming) {
+                canUseBestPerforming = true; // all evaluators have been set. Hence, can use them.
+            }
+        }
+    }
+
+    static class Performance {
+        int idx;
+        double value;
+
+        public Performance(int idx, double value) {
+            this.idx = idx;
+            this.value = value;
         }
     }
 
     @Override
     public double[] getVotesForInstance(Instance inst) {
+        boolean regression = inst.classAttribute().isNumeric();
+        double sumOfPredictions = 0;
         DoubleVector combinedVote = new DoubleVector();
-        for (int i = 0; i < this.ensemble.length; i++) {
-            DoubleVector vote = new DoubleVector(this.ensemble[i].getVotesForInstance(inst));
-            if (vote.sumOfValues() > 0.0) {
-                vote.normalize();
-                combinedVote.addValues(vote);
+
+        List<Performance> performances = new ArrayList<>();
+        if (canUseBestPerforming) {
+            double[] adjustedR2s = new double[this.evaluators.length];
+
+            for (int i = 0; i < this.evaluators.length; i++) {
+                adjustedR2s[i] = this.evaluators[i].getAdjustedCoefficientOfDetermination();
+                performances.add(new Performance(i, adjustedR2s[i]));
             }
+
+            Collections.sort(performances, new Comparator<Performance>() { // sort
+                @Override
+                public int compare(Performance t1, Performance t2) {
+//                    return Double.compare(t1.value, t2.value); // natural order
+                    return Double.compare(t2.value, t1.value);// for reverse order
+                }
+            });
         }
-        return combinedVote.getArrayRef();
+
+        if (regression){
+            int length = (int) (this.ensemble.length * (canUseBestPerforming ? usePercentageOfLearnersForPrediction.getValue() : 1.0));
+            for (int i = 0; i <  length; i++) {
+                int idx = canUseBestPerforming ? performances.get(i).idx : i;
+                sumOfPredictions += this.ensemble[idx].getVotesForInstance(inst)[0];
+            }
+            return new double[]{sumOfPredictions/length};
+        }else { // classification
+            for (int i = 0; i < this.ensemble.length; i++) {
+                DoubleVector vote = new DoubleVector(this.ensemble[i].getVotesForInstance(inst));
+                if (vote.sumOfValues() > 0.0) {
+                    vote.normalize();
+                    combinedVote.addValues(vote);
+                }
+            }
+            return combinedVote.getArrayRef();
+        }
     }
 
     @Override
