@@ -5,7 +5,7 @@ import argparse
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-d", "--dataset", type=str, help="arff dataset", default='ailerons')
-parser.add_argument("-r", "--results_dir", type=str, help="results directory", default='RESULTS/')
+parser.add_argument("-r", "--results_dir", type=str, help="results directory", default='/Users/ng98/Desktop/CODE/CapyMOA_Latest/RESULTS/')
 args = parser.parse_args()
 
 # Read data from CSV file
@@ -38,8 +38,9 @@ for method in df['method'].unique():
             plt.plot(subset['boosting_iterations'], subset[bv_key], label=label, color=color, linestyle=bv_component[bv_key][0])
 
 plt.xlabel('Boosting Iterations', fontsize=20)
-# plt.ylabel('Values')
-plt.title(f'{args.dataset}', fontsize=20)
+# plt.ylabel
+title = f'{args.dataset} (scaled)' if args.dataset in ['FriedmanGra', 'FriedmanGsg', 'FriedmanLea'] else f'{args.dataset}'
+plt.title(title, fontsize=20)
 if args.dataset in ['FriedmanGsg', 'fried']:
     plt.legend(prop={'size': 20})
 # Show only the x and y axes
