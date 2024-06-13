@@ -5,7 +5,7 @@ import argparse
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-d", "--dataset", type=str, help="arff dataset", default='ailerons')
-parser.add_argument("-r", "--results_dir", type=str, help="results directory", default='/Users/ng98/Desktop/CODE/CapyMOA_Latest/RESULTS/')
+parser.add_argument("-r", "--results_dir", type=str, help="results directory", default='/RESULTS/')
 args = parser.parse_args()
 
 # Read data from CSV file
