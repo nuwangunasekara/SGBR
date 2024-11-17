@@ -22,6 +22,7 @@
     ["HAT", "",  "trees.HoeffdingAdaptiveRegressionTree -k -n HoeffdingNumericAttributeClassObserver -d HoeffdingNominalAttributeClassObserver"],
     ["HT", "",  "trees.HoeffdingRegressionTree -k -n HoeffdingNumericAttributeClassObserver -d HoeffdingNominalAttributeClassObserver"],
     ["SGT", "",  "trees.StreamingGradientTreePredictor"],
-    ["SGBT(FIRTDD)", "Z",  "meta.StreamingGradientBoostedTrees -t -L 1.0 -m 75 -s 100 -l (trees.FIMTDD -s VarianceReductionSplitCriterion -g 50 -c 0.01 -e)"]
+    ["SGBT(FIRTDD)", "Z",  "meta.StreamingGradientBoostedTrees -t -L 1.0 -m 75 -s 100 -l (trees.FIMTDD -s VarianceReductionSplitCriterion -g 50 -c 0.01 -e)"],
+    ["AXGBr", "",  "meta.AdaptiveXGBoostClassifier -s 10"]
   ]
 }

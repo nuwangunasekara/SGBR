@@ -1,5 +1,17 @@
+# How to build experiment setup
+## Go to source root.
+## Go to MOA source
+``cd moa``
+## Build MOA
+`mvn clean install -DskipTests=true -Dmaven.javadoc.skip=true -Dlatex.skipBuild=true`
+## Copy MOA jar to experiments folder
+`cp .//target/moa-2023.04.1-SNAPSHOT-jar-with-dependencies.jar ../exp/moa.jar`
+
+
 # Run experiments
 ## Setup
+### Create conda environment with Python and Java (assumes its installed in the system)
+``conda create -n SGBR python=3.9``
 ### go to exp folder
 ``cd exp``
 ### create output folders
@@ -11,9 +23,13 @@
 ### go level up (at exp)
 ``cd ..``
 ## Run Wall time experiments
-```python benchmark_moa.py exp_config.json```
+```python benchmark_moa.py -f exp_config.json```
 ### Run periodic stats experiments
-```python benchmark_moa.py exp_config_overTime.json```
+```python benchmark_moa.py -f exp_config_overTime.json```
+### Run hyperparameter search experiments
+```python benchmark_moa.py -f exp_config_SGBT_OZA_parameter_search.json```
+
+
 
 # MOA (Massive Online Analysis)
 [![Build Status](https://travis-ci.org/Waikato/moa.svg?branch=master)](https://travis-ci.org/Waikato/moa)

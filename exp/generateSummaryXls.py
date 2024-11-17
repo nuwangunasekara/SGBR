@@ -1,3 +1,4 @@
+import glob
 import subprocess
 import argparse
 import os
@@ -8,8 +9,7 @@ import re
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-r", "--resultsDir", type=str, help="Results directory",
-                    default='output/')
-parser.add_argument("-t", "--tableType", type=str, help="Table Type", default='')
+                    default='./output_SGBT_5(OZA 20)_with_best_baseline_comparision/')
 args = parser.parse_args()
 
 random_seed_option = '-Z'
@@ -50,107 +50,107 @@ pv_table_values = {
     'evaluation time (wall) (seconds)': {'name': 'WallTime(s)', 'ascending': True, 'decimal_places': 1}
 }
 
-row_order = [
-    [
-        'meta.OzaBag_-s_10_-l_(meta.StreamingGradientBoostedTrees_-t_-L_1.0_-m_75_-s_10_-l_(trees.FIMTDD_-s_VarianceReductionSplitCriterion_-g_50_-c_0.01_-e)).csv',
-        'Oza(SGBT(FIRTDD))'],
-    [
-        'meta.OzaBag_-p_0.9_-s_10_-l_(meta.StreamingGradientBoostedTrees_-t_-L_1.0_-m_75_-s_10_-l_(trees.FIMTDD_-s_VarianceReductionSplitCriterion_-g_50_-c_0.01_-e)).csv',
-        'OzaP0.9(SGBT(FIRTDD))'],
-    [
-        'meta.OzaBag_-p_0.8_-s_10_-l_(meta.StreamingGradientBoostedTrees_-t_-L_1.0_-m_75_-s_10_-l_(trees.FIMTDD_-s_VarianceReductionSplitCriterion_-g_50_-c_0.01_-e)).csv',
-        'OzaP0.8(SGBT(FIRTDD))'],
-    [
-        'meta.OzaBag_-T_-s_10_-l_(meta.StreamingGradientBoostedTrees_-t_-L_1.0_-m_75_-s_10_-l_(trees.FIMTDD_-s_VarianceReductionSplitCriterion_-g_50_-c_0.01_-e)).csv',
-        'Oza_T(SGBT(FIRTDD))'],
-    [
-        'meta.OzaBag_-p_0.9_-T_-s_10_-l_(meta.StreamingGradientBoostedTrees_-t_-L_1.0_-m_75_-s_10_-l_(trees.FIMTDD_-s_VarianceReductionSplitCriterion_-g_50_-c_0.01_-e)).csv',
-        'OzaP0.9_T(SGBT(FIRTDD))'],
-    [
-        'meta.OzaBag_-p_0.8_-T_-s_10_-l_(meta.StreamingGradientBoostedTrees_-t_-L_1.0_-m_75_-s_10_-l_(trees.FIMTDD_-s_VarianceReductionSplitCriterion_-g_50_-c_0.01_-e)).csv',
-        'OzaP0.8_T(SGBT(FIRTDD))'],
-    [
-        'meta.StreamingRandomPatches_-s_10_-l_(meta.StreamingGradientBoostedTrees_-t_-L_1.0_-m_75_-s_10_-l_(trees.FIMTDD_-s_VarianceReductionSplitCriterion_-g_50_-c_0.01_-e)).csv',
-        'SRP(SGBT(FIRTDD))'],
-    [
-        'meta.StreamingRandomPatches_-T_-s_10_-l_(meta.StreamingGradientBoostedTrees_-t_-L_1.0_-m_75_-s_10_-l_(trees.FIMTDD_-s_VarianceReductionSplitCriterion_-g_50_-c_0.01_-e)).csv',
-        'SRP_T(SGBT(FIRTDD))'],
-    [
-        'meta.StreamingGradientBoostedTrees_-t_-L_1.0_-m_75_-s_10_-l_(meta.OzaBag_-s_10_-l_(trees.FIMTDD_-s_VarianceReductionSplitCriterion_-g_50_-c_0.01_-e)).csv',
-        'SGBT(Oza(FIRTDD))'],
-    [
-        'meta.StreamingGradientBoostedTrees_-t_-L_1.0_-m_75_-s_10_-l_(meta.OzaBag_-p_0.9_-s_10_-l_(trees.FIMTDD_-s_VarianceReductionSplitCriterion_-g_50_-c_0.01_-e)).csv',
-        'SGBT(OzaP0.9(FIRTDD))'],
-    [
-        'meta.StreamingGradientBoostedTrees_-t_-L_1.0_-m_75_-s_10_-l_(meta.OzaBag_-p_0.8_-s_10_-l_(trees.FIMTDD_-s_VarianceReductionSplitCriterion_-g_50_-c_0.01_-e)).csv',
-        'SGBT(OzaP0.8(FIRTDD))'],
-    [
-        'meta.StreamingGradientBoostedTrees_-t_-L_1.0_-m_75_-s_10_-l_(meta.OzaBag_-T_-s_10_-l_(trees.FIMTDD_-s_VarianceReductionSplitCriterion_-g_50_-c_0.01_-e)).csv',
-        'SGBT(Oza_T(FIRTDD))'],
-    [
-        'meta.StreamingGradientBoostedTrees_-t_-L_1.0_-m_75_-s_10_-l_(meta.OzaBag_-p_0.9_-T_-s_10_-l_(trees.FIMTDD_-s_VarianceReductionSplitCriterion_-g_50_-c_0.01_-e)).csv',
-        'SGBT(OzaP0.9_T(FIRTDD))'],
-    [
-        'meta.StreamingGradientBoostedTrees_-t_-L_1.0_-m_75_-s_10_-l_(meta.OzaBag_-p_0.8_-T_-s_10_-l_(trees.FIMTDD_-s_VarianceReductionSplitCriterion_-g_50_-c_0.01_-e)).csv',
-        'SGBT(OzaP0.8_T(FIRTDD))'],
-    [
-        'meta.StreamingGradientBoostedTrees_-t_-L_1.0_-m_75_-s_10_-l_(meta.AdaptiveRandomForestRegressor_-s_10_-x_(ADWINChangeDetector_-a_0.001)_-p_(ADWINChangeDetector_-a_0.01)).csv',
-        'SGBT(ARF(FIRTDD))'],
-    [
-        'meta.StreamingGradientBoostedTrees_-t_-L_1.0_-m_75_-s_10_-l_(SOKNL_-f_-s_10_-l_(SelfOptimisingBaseTree_-s_VarianceReductionSplitCriterion_-g_50_-c_0.01)_-x_(ADWINChangeDetector_-a_0.001)_-p_(ADWINChangeDetector_-a_0.01)).csv',
-        'SGBT(SOKNLnoSelfO(FIRTDD))'],
-    [
-        'meta.StreamingGradientBoostedTrees_-t_-L_1.0_-m_75_-s_10_-l_(SOKNL_-s_10_-l_(SelfOptimisingBaseTree_-s_VarianceReductionSplitCriterion_-g_50_-c_0.01)_-x_(ADWINChangeDetector_-a_0.001)_-p_(ADWINChangeDetector_-a_0.01)).csv',
-        'SGBT(SOKNL(FIRTDD))'],
-    [
-        'meta.StreamingGradientBoostedTrees_-t_-L_1.0_-m_75_-s_10_-l_(meta.StreamingRandomPatches_-s_10_-l_(trees.FIMTDD_-s_VarianceReductionSplitCriterion_-g_50_-c_0.01_-e)).csv',
-        'SGBT(SRP(FIRTDD))'],
-    [
-        'meta.StreamingGradientBoostedTrees_-t_-L_1.0_-m_75_-s_10_-l_(meta.StreamingRandomPatches_-T_-s_10_-l_(trees.FIMTDD_-s_VarianceReductionSplitCriterion_-g_50_-c_0.01_-e)).csv',
-        'SGBT(SRP_T(FIRTDD))'],
-    ['meta.OzaBag_-s_100_-l_(trees.FIMTDD_-s_VarianceReductionSplitCriterion_-g_50_-c_0.01_-e).csv', 'Oza(FIRTDD))'],
-    ['meta.OzaBag_-p_0.9_-s_100_-l_(trees.FIMTDD_-s_VarianceReductionSplitCriterion_-g_50_-c_0.01_-e).csv',
-     'OzaP0.9(FIRTDD))'],
-    ['meta.OzaBag_-p_0.8_-s_100_-l_(trees.FIMTDD_-s_VarianceReductionSplitCriterion_-g_50_-c_0.01_-e).csv',
-     'OzaP0.8(FIRTDD))'],
-    ['meta.OzaBag_-T_-s_100_-l_(trees.FIMTDD_-s_VarianceReductionSplitCriterion_-g_50_-c_0.01_-e).csv',
-     'Oza_T(FIRTDD))'],
-    ['meta.OzaBag_-p_0.9_-T_-s_100_-l_(trees.FIMTDD_-s_VarianceReductionSplitCriterion_-g_50_-c_0.01_-e).csv',
-     'OzaP0.9_T(FIRTDD))'],
-    ['meta.OzaBag_-p_0.8_-T_-s_100_-l_(trees.FIMTDD_-s_VarianceReductionSplitCriterion_-g_50_-c_0.01_-e).csv',
-     'OzaP0.8_T(FIRTDD))'],
-    ['meta.AdaptiveRandomForestRegressor_-s_100_-x_(ADWINChangeDetector_-a_0.001)_-p_(ADWINChangeDetector_-a_0.01).csv',
-     'ARF(FIRTDD))'],
-    [
-        'SOKNL_-f_-s_100_-l_(SelfOptimisingBaseTree_-s_VarianceReductionSplitCriterion_-g_50_-c_0.01)_-x_(ADWINChangeDetector_-a_0.001)_-p_(ADWINChangeDetector_-a_0.01).csv',
-        'SOKNLnoSelfO(FIRTDD)'],
-    [
-        'SOKNL_-s_100_-l_(SelfOptimisingBaseTree_-s_VarianceReductionSplitCriterion_-g_50_-c_0.01)_-x_(ADWINChangeDetector_-a_0.001)_-p_(ADWINChangeDetector_-a_0.01).csv',
-        'SOKNL(FIRTDD)'],
-    ['meta.StreamingRandomPatches_-s_100_-l_(trees.FIMTDD_-s_VarianceReductionSplitCriterion_-g_50_-c_0.01_-e).csv',
-     'SRP(FIRTDD))'],
-    ['meta.StreamingRandomPatches_-T_-s_100_-l_(trees.FIMTDD_-s_VarianceReductionSplitCriterion_-g_50_-c_0.01_-e).csv',
-     'SRP_T(FIRTDD))'],
-    ['trees.FIMTDD_-s_VarianceReductionSplitCriterion_-g_50_-c_0.01_-e.csv', 'FIRTDD'],
-    [
-        'trees.HoeffdingAdaptiveRegressionTree_-k_-n_HoeffdingNumericAttributeClassObserver_-d_HoeffdingNominalAttributeClassObserver.csv',
-        'HTAR'],
-    [
-        'trees.HoeffdingRegressionTree_-k_-n_HoeffdingNumericAttributeClassObserver_-d_HoeffdingNominalAttributeClassObserver.csv',
-        'HTR'],
-    ['trees.StreamingGradientTreePredictor.csv', 'SGT'],
-    [
-        'meta.StreamingGradientBoostedTrees_-t_-L_1.0_-m_75_-s_100_-l_(trees.FIMTDD_-s_VarianceReductionSplitCriterion_-g_50_-c_0.01_-e).csv',
-        'SGBT(FIRTDD)'],
-    [
-        'meta.StreamingGradientBoostedTrees_-t_-L_1.0_-m_75_-s_100_-l_(trees.HoeffdingAdaptiveRegressionTree_-k_-n_HoeffdingNumericAttributeClassObserver_-d_HoeffdingNominalAttributeClassObserver).csv',
-        'SGBT(HTAR)'],
-    [
-        'meta.StreamingGradientBoostedTrees_-t_-L_1.0_-m_75_-s_100_-l_(trees.HoeffdingRegressionTree_-k_-n_HoeffdingNumericAttributeClassObserver_-d_HoeffdingNominalAttributeClassObserver).csv',
-        'SGBT(HTR)'],
-    ['meta.StreamingGradientBoostedTrees_-t_-L_1.0_-m_75_-s_100_-l_(trees.StreamingGradientTreePredictor).csv',
-     'SGBT(SGT)'],
-]
+# row_order = [
+#     [
+#         'meta.OzaBag_-s_10_-l_(meta.StreamingGradientBoostedTrees_-t_-L_1.0_-m_75_-s_10_-l_(trees.FIMTDD_-s_VarianceReductionSplitCriterion_-g_50_-c_0.01_-e)).csv',
+#         'Oza(SGBT(FIRTDD))'],
+#     [
+#         'meta.OzaBag_-p_0.9_-s_10_-l_(meta.StreamingGradientBoostedTrees_-t_-L_1.0_-m_75_-s_10_-l_(trees.FIMTDD_-s_VarianceReductionSplitCriterion_-g_50_-c_0.01_-e)).csv',
+#         'OzaP0.9(SGBT(FIRTDD))'],
+#     [
+#         'meta.OzaBag_-p_0.8_-s_10_-l_(meta.StreamingGradientBoostedTrees_-t_-L_1.0_-m_75_-s_10_-l_(trees.FIMTDD_-s_VarianceReductionSplitCriterion_-g_50_-c_0.01_-e)).csv',
+#         'OzaP0.8(SGBT(FIRTDD))'],
+#     [
+#         'meta.OzaBag_-T_-s_10_-l_(meta.StreamingGradientBoostedTrees_-t_-L_1.0_-m_75_-s_10_-l_(trees.FIMTDD_-s_VarianceReductionSplitCriterion_-g_50_-c_0.01_-e)).csv',
+#         'Oza_T(SGBT(FIRTDD))'],
+#     [
+#         'meta.OzaBag_-p_0.9_-T_-s_10_-l_(meta.StreamingGradientBoostedTrees_-t_-L_1.0_-m_75_-s_10_-l_(trees.FIMTDD_-s_VarianceReductionSplitCriterion_-g_50_-c_0.01_-e)).csv',
+#         'OzaP0.9_T(SGBT(FIRTDD))'],
+#     [
+#         'meta.OzaBag_-p_0.8_-T_-s_10_-l_(meta.StreamingGradientBoostedTrees_-t_-L_1.0_-m_75_-s_10_-l_(trees.FIMTDD_-s_VarianceReductionSplitCriterion_-g_50_-c_0.01_-e)).csv',
+#         'OzaP0.8_T(SGBT(FIRTDD))'],
+#     [
+#         'meta.StreamingRandomPatches_-s_10_-l_(meta.StreamingGradientBoostedTrees_-t_-L_1.0_-m_75_-s_10_-l_(trees.FIMTDD_-s_VarianceReductionSplitCriterion_-g_50_-c_0.01_-e)).csv',
+#         'SRP(SGBT(FIRTDD))'],
+#     [
+#         'meta.StreamingRandomPatches_-T_-s_10_-l_(meta.StreamingGradientBoostedTrees_-t_-L_1.0_-m_75_-s_10_-l_(trees.FIMTDD_-s_VarianceReductionSplitCriterion_-g_50_-c_0.01_-e)).csv',
+#         'SRP_T(SGBT(FIRTDD))'],
+#     [
+#         'meta.StreamingGradientBoostedTrees_-t_-L_1.0_-m_75_-s_10_-l_(meta.OzaBag_-s_10_-l_(trees.FIMTDD_-s_VarianceReductionSplitCriterion_-g_50_-c_0.01_-e)).csv',
+#         'SGBT(Oza(FIRTDD))'],
+#     [
+#         'meta.StreamingGradientBoostedTrees_-t_-L_1.0_-m_75_-s_10_-l_(meta.OzaBag_-p_0.9_-s_10_-l_(trees.FIMTDD_-s_VarianceReductionSplitCriterion_-g_50_-c_0.01_-e)).csv',
+#         'SGBT(OzaP0.9(FIRTDD))'],
+#     [
+#         'meta.StreamingGradientBoostedTrees_-t_-L_1.0_-m_75_-s_10_-l_(meta.OzaBag_-p_0.8_-s_10_-l_(trees.FIMTDD_-s_VarianceReductionSplitCriterion_-g_50_-c_0.01_-e)).csv',
+#         'SGBT(OzaP0.8(FIRTDD))'],
+#     [
+#         'meta.StreamingGradientBoostedTrees_-t_-L_1.0_-m_75_-s_10_-l_(meta.OzaBag_-T_-s_10_-l_(trees.FIMTDD_-s_VarianceReductionSplitCriterion_-g_50_-c_0.01_-e)).csv',
+#         'SGBT(Oza_T(FIRTDD))'],
+#     [
+#         'meta.StreamingGradientBoostedTrees_-t_-L_1.0_-m_75_-s_10_-l_(meta.OzaBag_-p_0.9_-T_-s_10_-l_(trees.FIMTDD_-s_VarianceReductionSplitCriterion_-g_50_-c_0.01_-e)).csv',
+#         'SGBT(OzaP0.9_T(FIRTDD))'],
+#     [
+#         'meta.StreamingGradientBoostedTrees_-t_-L_1.0_-m_75_-s_10_-l_(meta.OzaBag_-p_0.8_-T_-s_10_-l_(trees.FIMTDD_-s_VarianceReductionSplitCriterion_-g_50_-c_0.01_-e)).csv',
+#         'SGBT(OzaP0.8_T(FIRTDD))'],
+#     [
+#         'meta.StreamingGradientBoostedTrees_-t_-L_1.0_-m_75_-s_10_-l_(meta.AdaptiveRandomForestRegressor_-s_10_-x_(ADWINChangeDetector_-a_0.001)_-p_(ADWINChangeDetector_-a_0.01)).csv',
+#         'SGBT(ARF(FIRTDD))'],
+#     [
+#         'meta.StreamingGradientBoostedTrees_-t_-L_1.0_-m_75_-s_10_-l_(SOKNL_-f_-s_10_-l_(SelfOptimisingBaseTree_-s_VarianceReductionSplitCriterion_-g_50_-c_0.01)_-x_(ADWINChangeDetector_-a_0.001)_-p_(ADWINChangeDetector_-a_0.01)).csv',
+#         'SGBT(SOKNLnoSelfO(FIRTDD))'],
+#     [
+#         'meta.StreamingGradientBoostedTrees_-t_-L_1.0_-m_75_-s_10_-l_(SOKNL_-s_10_-l_(SelfOptimisingBaseTree_-s_VarianceReductionSplitCriterion_-g_50_-c_0.01)_-x_(ADWINChangeDetector_-a_0.001)_-p_(ADWINChangeDetector_-a_0.01)).csv',
+#         'SGBT(SOKNL(FIRTDD))'],
+#     [
+#         'meta.StreamingGradientBoostedTrees_-t_-L_1.0_-m_75_-s_10_-l_(meta.StreamingRandomPatches_-s_10_-l_(trees.FIMTDD_-s_VarianceReductionSplitCriterion_-g_50_-c_0.01_-e)).csv',
+#         'SGBT(SRP(FIRTDD))'],
+#     [
+#         'meta.StreamingGradientBoostedTrees_-t_-L_1.0_-m_75_-s_10_-l_(meta.StreamingRandomPatches_-T_-s_10_-l_(trees.FIMTDD_-s_VarianceReductionSplitCriterion_-g_50_-c_0.01_-e)).csv',
+#         'SGBT(SRP_T(FIRTDD))'],
+#     ['meta.OzaBag_-s_100_-l_(trees.FIMTDD_-s_VarianceReductionSplitCriterion_-g_50_-c_0.01_-e).csv', 'Oza(FIRTDD))'],
+#     ['meta.OzaBag_-p_0.9_-s_100_-l_(trees.FIMTDD_-s_VarianceReductionSplitCriterion_-g_50_-c_0.01_-e).csv',
+#      'OzaP0.9(FIRTDD))'],
+#     ['meta.OzaBag_-p_0.8_-s_100_-l_(trees.FIMTDD_-s_VarianceReductionSplitCriterion_-g_50_-c_0.01_-e).csv',
+#      'OzaP0.8(FIRTDD))'],
+#     ['meta.OzaBag_-T_-s_100_-l_(trees.FIMTDD_-s_VarianceReductionSplitCriterion_-g_50_-c_0.01_-e).csv',
+#      'Oza_T(FIRTDD))'],
+#     ['meta.OzaBag_-p_0.9_-T_-s_100_-l_(trees.FIMTDD_-s_VarianceReductionSplitCriterion_-g_50_-c_0.01_-e).csv',
+#      'OzaP0.9_T(FIRTDD))'],
+#     ['meta.OzaBag_-p_0.8_-T_-s_100_-l_(trees.FIMTDD_-s_VarianceReductionSplitCriterion_-g_50_-c_0.01_-e).csv',
+#      'OzaP0.8_T(FIRTDD))'],
+#     ['meta.AdaptiveRandomForestRegressor_-s_100_-x_(ADWINChangeDetector_-a_0.001)_-p_(ADWINChangeDetector_-a_0.01).csv',
+#      'ARF(FIRTDD))'],
+#     [
+#         'SOKNL_-f_-s_100_-l_(SelfOptimisingBaseTree_-s_VarianceReductionSplitCriterion_-g_50_-c_0.01)_-x_(ADWINChangeDetector_-a_0.001)_-p_(ADWINChangeDetector_-a_0.01).csv',
+#         'SOKNLnoSelfO(FIRTDD)'],
+#     [
+#         'SOKNL_-s_100_-l_(SelfOptimisingBaseTree_-s_VarianceReductionSplitCriterion_-g_50_-c_0.01)_-x_(ADWINChangeDetector_-a_0.001)_-p_(ADWINChangeDetector_-a_0.01).csv',
+#         'SOKNL(FIRTDD)'],
+#     ['meta.StreamingRandomPatches_-s_100_-l_(trees.FIMTDD_-s_VarianceReductionSplitCriterion_-g_50_-c_0.01_-e).csv',
+#      'SRP(FIRTDD))'],
+#     ['meta.StreamingRandomPatches_-T_-s_100_-l_(trees.FIMTDD_-s_VarianceReductionSplitCriterion_-g_50_-c_0.01_-e).csv',
+#      'SRP_T(FIRTDD))'],
+#     ['trees.FIMTDD_-s_VarianceReductionSplitCriterion_-g_50_-c_0.01_-e.csv', 'FIRTDD'],
+#     [
+#         'trees.HoeffdingAdaptiveRegressionTree_-k_-n_HoeffdingNumericAttributeClassObserver_-d_HoeffdingNominalAttributeClassObserver.csv',
+#         'HTAR'],
+#     [
+#         'trees.HoeffdingRegressionTree_-k_-n_HoeffdingNumericAttributeClassObserver_-d_HoeffdingNominalAttributeClassObserver.csv',
+#         'HTR'],
+#     ['trees.StreamingGradientTreePredictor.csv', 'SGT'],
+#     [
+#         'meta.StreamingGradientBoostedTrees_-t_-L_1.0_-m_75_-s_100_-l_(trees.FIMTDD_-s_VarianceReductionSplitCriterion_-g_50_-c_0.01_-e).csv',
+#         'SGBT(FIRTDD)'],
+#     [
+#         'meta.StreamingGradientBoostedTrees_-t_-L_1.0_-m_75_-s_100_-l_(trees.HoeffdingAdaptiveRegressionTree_-k_-n_HoeffdingNumericAttributeClassObserver_-d_HoeffdingNominalAttributeClassObserver).csv',
+#         'SGBT(HTAR)'],
+#     [
+#         'meta.StreamingGradientBoostedTrees_-t_-L_1.0_-m_75_-s_100_-l_(trees.HoeffdingRegressionTree_-k_-n_HoeffdingNumericAttributeClassObserver_-d_HoeffdingNominalAttributeClassObserver).csv',
+#         'SGBT(HTR)'],
+#     ['meta.StreamingGradientBoostedTrees_-t_-L_1.0_-m_75_-s_100_-l_(trees.StreamingGradientTreePredictor).csv',
+#      'SGBT(SGT)'],
+# ]
 
 row_order = [
     ['Oza(SGBT(FIRTDD)).csv', 'Oza(SGBT(FIRTDD))'],
@@ -188,6 +188,7 @@ row_order = [
     ['SGBT(ARFReg(FIRTDD)).csv', '\\acrshort{sgbtarf}'],
     ['SGBT(SRP(FIRTDD)).csv', '\\acrshort{sgbtsrp}'],
     ['SGBT(FIRTDD).csv', '\\acrshort{sgbt}'],
+    ['AXGBr.csv', '\\acrshort{axgb}'],
     ['Oza(FIRTDD).csv', '\\acrshort{ozareg}'],
     ['ARFReg(FIRTDD).csv', '\\acrshort{arfreg}'],
     ['SOKNL(FIRTDD).csv', '\\acrshort{soknl}'],
@@ -197,13 +198,57 @@ row_order = [
 ]
 
 row_order = [
-    ['FIRTDD.csv', '\\acrshort{firtdd}'],
-    ['HT.csv', '\\acrshort{htr}'],
-    ['SGT.csv', '\\acrshort{sgt}\\cite{pmlr-v101-gouk19a}'],
-    ['SGBT(FIRTDD).csv', '\\acrshort{sgbt}'],
+    ['SGBT_1(Oza_100).csv', '1,100'],
+    ['SGBT_2(Oza_50).csv', '2,50'],
+    ['SGBT_4(Oza_25).csv', '4,25'],
+    ['SGBT_5(Oza_20).csv', '5,20'],
+    ['SGBT_10(Oza_10).csv', '10,10'],
+    ['SGBT_20(Oza_5).csv', '20,5'],
+    ['SGBT_25(Oza_4).csv', '25,4'],
+    ['SGBT_50(Oza_2).csv', '50,2'],
+    ['SGBT_100(Oza_1).csv', '100,1'],
 ]
 
-PRINT_STD = False
+row_order = [
+    ['SGBT_5(Oza_20).csv', '\\acrshort{sgbtoza}(5,20)'],
+    ['SGBT_10(Oza_10).csv', '\\acrshort{sgbtoza}(10,10)'],
+    ['SOKNL(FIRTDD).csv', '\\acrshort{soknl}'],
+    ['Oza(FIRTDD).csv', '\\acrshort{ozareg}'],
+    ['ARFReg(FIRTDD).csv', '\\acrshort{arfreg}'],
+]
+
+# row_order = [
+#     ['FIRTDD.csv', '\\acrshort{firtdd}'],
+#     ['HT.csv', '\\acrshort{htr}'],
+#     ['SGT.csv', '\\acrshort{sgt}\\cite{pmlr-v101-gouk19a}'],
+#     ['SGBT(FIRTDD).csv', '\\acrshort{sgbt}'],
+# ]
+#
+# row_order = [
+#     ["SGBT_1(Oza_100)", "Z",  "meta.StreamingGradientBoostedTrees -t -L 1.0 -m 75 -s 1 -l (meta.OzaBag -s 100 -l (trees.FIMTDD -s VarianceReductionSplitCriterion -g 50 -c 0.01 -e))"],
+#     ["SGBT_2(Oza_50)", "Z",  "meta.StreamingGradientBoostedTrees -t -L 1.0 -m 75 -s 2 -l (meta.OzaBag -s 50 -l (trees.FIMTDD -s VarianceReductionSplitCriterion -g 50 -c 0.01 -e))"],
+#     ["SGBT_4(Oza_25)", "Z",  "meta.StreamingGradientBoostedTrees -t -L 1.0 -m 75 -s 4 -l (meta.OzaBag -s 25 -l (trees.FIMTDD -s VarianceReductionSplitCriterion -g 50 -c 0.01 -e))"],
+#     ["SGBT_5(Oza_20)", "Z",  "meta.StreamingGradientBoostedTrees -t -L 1.0 -m 75 -s 5 -l (meta.OzaBag -s 20 -l (trees.FIMTDD -s VarianceReductionSplitCriterion -g 50 -c 0.01 -e))"],
+#     ["SGBT_10(Oza_10)", "Z",  "meta.StreamingGradientBoostedTrees -t -L 1.0 -m 75 -s 10 -l (meta.OzaBag -s 10 -l (trees.FIMTDD -s VarianceReductionSplitCriterion -g 50 -c 0.01 -e))"],
+#     ["SGBT_20(Oza_5)", "Z",  "meta.StreamingGradientBoostedTrees -t -L 1.0 -m 75 -s 20 -l (meta.OzaBag -s 5 -l (trees.FIMTDD -s VarianceReductionSplitCriterion -g 50 -c 0.01 -e))"],
+#     ["SGBT_25(Oza_4)", "Z",  "meta.StreamingGradientBoostedTrees -t -L 1.0 -m 75 -s 25 -l (meta.OzaBag -s 4 -l (trees.FIMTDD -s VarianceReductionSplitCriterion -g 50 -c 0.01 -e))"],
+#     ["SGBT_50(Oza_2)", "Z",  "meta.StreamingGradientBoostedTrees -t -L 1.0 -m 75 -s 50 -l (meta.OzaBag -s 2 -l (trees.FIMTDD -s VarianceReductionSplitCriterion -g 50 -c 0.01 -e))"],
+#     ["SGBT_100(Oza_1)", "Z",  "meta.StreamingGradientBoostedTrees -t -L 1.0 -m 75 -s 100 -l (meta.OzaBag -s 1 -l (trees.FIMTDD -s VarianceReductionSplitCriterion -g 50 -c 0.01 -e))"]
+# ]
+#
+# row_order = [
+#     ['SGBT_1(Oza_100)', '\\acrshort{sgbt}_100(\\acrshort{oza}_1)'],
+#     ['SGBT_2(Oza_50)', '\\acrshort{sgbt}_50(\\acrshort{oza}_2)'],
+#     ['SGBT_4(Oza_25)', '\\acrshort{sgbt}_25(\\acrshort{oza}_4)'],
+#     ['SGBT_5(Oza_20)', '\\acrshort{sgbt}_20(\\acrshort{oza}_5)'],
+#     ['SGBT_10(Oza_10)', '\\acrshort{sgbt}_10(\\acrshort{oza}_10)'],
+#     ['SGBT_20(Oza_5)', '\\acrshort{sgbt}_5(\\acrshort{oza}_20)'],
+#     ['SGBT_25(Oza_4)', '\\acrshort{sgbt}_4(\\acrshort{oza}_25)'],
+#     ['SGBT_50(Oza_2)', '\\acrshort{sgbt}_2(\\acrshort{oza}_50)'],
+#     ['SGBT_100(Oza_1)', '\\acrshort{sgbt}_1(\\acrshort{oza}_100)']
+# ]
+
+PRINT_STD = True
 
 def get_matching_index(item_to_find):
     for idx, item in enumerate(row_order):
@@ -212,7 +257,7 @@ def get_matching_index(item_to_find):
     return 100, item_to_find
 
 
-def get_raw_id(s: str, learner_string: str, t: str):
+def get_raw_id(s: str, learner_string: str):
     skip_csv = False
     id, label = get_matching_index(learner_string)
     # label = learner_string
@@ -233,15 +278,23 @@ def add_ranks(df: pd.DataFrame, skip_cols, ascending: bool):
 
 csv_files = []
 if len(csv_files) == 0:
-    command = subprocess.Popen("find -L " + args.resultsDir + " -iname '*.csv'",
-                               shell=True, stdout=subprocess.PIPE)
-    for line in command.stdout.readlines():
-        file_name = line.decode("utf-8").replace('\n', '')
-        id, label = get_matching_index(file_name.split('/')[-1])
+    matching_files = glob.glob(f"{args.resultsDir}/**/*.csv", recursive=True)
+    for full_file_name in matching_files:
+        id, label = get_matching_index(full_file_name.split('/')[-1])
         if id == 100:
             pass
         else:
-            csv_files.append(file_name)
+            csv_files.append(full_file_name)
+
+    # command = subprocess.Popen("find -L " + args.resultsDir + " -iname '*.csv'",
+    #                            shell=True, stdout=subprocess.PIPE)
+    # for line in command.stdout.readlines():
+    #     file_name = line.decode("utf-8").replace('\n', '')
+    #     id, label = get_matching_index(file_name.split('/')[-1])
+    #     if id == 100:
+    #         pass
+    #     else:
+    #         csv_files.append(file_name)
 
 pattern = re.compile(r'_' + random_seed_option + '_\d+')
 
@@ -261,7 +314,7 @@ for f in csv_files:
 
     df['Learner'] = learner_cmd = re.sub(pattern, '', learner_cmd)
 
-    raw_id, raw_label, skip = get_raw_id(f, df.iloc[0]['Learner'], args.tableType)
+    raw_id, raw_label, skip = get_raw_id(f, df.iloc[0]['Learner'])
 
     if skip:
         continue
@@ -304,6 +357,8 @@ for pv_key, pv_table_data in pv_table_values.items():
         pd_std = pd_std[column_order]
     # pd_std = pd_std.sort_values(by ='Learner', ascending = 1)
     pd_std = pd_std.sort_values(by='raw_id', ascending=1)
+    std_for_all_datasets = pd.pivot_table(df_final, values=pv_key, index=index_cols, columns=[], aggfunc=np.std, fill_value=0)
+    pd_std[f"for_all"] = std_for_all_datasets.round(pv_table_values[pv_key]['decimal_places'])
     pd_std.rename(columns={f'{c}': f'std_{c}' for c in pd_std.columns}, inplace=True)
     pv_table_data['std'] = pd_std
     # pv_table_data['std'] = pd_std.round(pv_table_values[pv_key]['decimal_places'])
@@ -369,13 +424,13 @@ def print_df(df, datasets, t_info, print_std):
         print(f"{idx[1]} ", end=" & ")
         for d in datasets:
             print_cell(df, idx, d, h_min, print_std=print_std, end_str=" & ", d=t_info['decimal_places'])
-        print_cell(df, idx, avg_colm, h_min, print_std=False, end_str=" & ")
+        print_cell(df, idx, avg_colm, h_min, print_std=False, end_str=" & ", d=t_info['decimal_places'])
         print_cell(df, idx, rank_colm, True, print_std=False, end_str=" \\\\ ")
         print()
     print('\\bottomrule')
     print('\end{tabular} %')
 
-with pd.ExcelWriter(args.resultsDir + '/Results_' + args.tableType + '.xlsx', engine='openpyxl') as writer:
+with pd.ExcelWriter(args.resultsDir + '/Results_' + '.xlsx', engine='openpyxl') as writer:
     for pv_key, pv_table_data in pv_table_values.items():
         avg_col = f"avg"
         rank_col = f"avgRank"
@@ -391,6 +446,7 @@ with pd.ExcelWriter(args.resultsDir + '/Results_' + args.tableType + '.xlsx', en
             tmp_cols = [c for c in new_col_order]
             tmp_cols.append(avg_col)
             tmp_cols.append(rank_col)
+            tmp_cols.append("std_for_all")
             pv_table_data['std'].to_excel(writer, sheet_name='Std ' + pv_table_data['name'], index=True)
             pd_concat = pd.concat([pv_table_data['avg'], pv_table_data['std']], axis=1, ignore_index=False)
 
