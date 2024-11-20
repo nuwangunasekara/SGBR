@@ -8,14 +8,14 @@
   "streams": {"<dataset_name>": "stream_command","random_seed_options": ["-r"]},
   "random_seeds": [1,2,3,4,5],
   "learners":[
-    ["Oza(SGBT(FIRTDD))", "Z",  "meta.OzaBag -s 1 -l (meta.StreamingGradientBoostedTrees -t -L 1.0 -m 75 -s 100 -l (trees.FIMTDD -s VarianceReductionSplitCriterion -g 50 -c 0.01 -e))"],
-    ["Oza(SGBT(FIRTDD))", "Z",  "meta.OzaBag -s 2 -l (meta.StreamingGradientBoostedTrees -t -L 1.0 -m 75 -s 50 -l (trees.FIMTDD -s VarianceReductionSplitCriterion -g 50 -c 0.01 -e))"],
-    ["Oza(SGBT(FIRTDD))", "Z",  "meta.OzaBag -s 4 -l (meta.StreamingGradientBoostedTrees -t -L 1.0 -m 75 -s 25 -l (trees.FIMTDD -s VarianceReductionSplitCriterion -g 50 -c 0.01 -e))"],
-    ["Oza(SGBT(FIRTDD))", "Z",  "meta.OzaBag -s 5 -l (meta.StreamingGradientBoostedTrees -t -L 1.0 -m 75 -s 20 -l (trees.FIMTDD -s VarianceReductionSplitCriterion -g 50 -c 0.01 -e))"],
-    ["Oza(SGBT(FIRTDD))", "Z",  "meta.OzaBag -s 10 -l (meta.StreamingGradientBoostedTrees -t -L 1.0 -m 75 -s 10 -l (trees.FIMTDD -s VarianceReductionSplitCriterion -g 50 -c 0.01 -e))"],
-    ["Oza(SGBT(FIRTDD))", "Z",  "meta.OzaBag -s 20 -l (meta.StreamingGradientBoostedTrees -t -L 1.0 -m 75 -s 5 -l (trees.FIMTDD -s VarianceReductionSplitCriterion -g 50 -c 0.01 -e))"],
-    ["Oza(SGBT(FIRTDD))", "Z",  "meta.OzaBag -s 25 -l (meta.StreamingGradientBoostedTrees -t -L 1.0 -m 75 -s 4 -l (trees.FIMTDD -s VarianceReductionSplitCriterion -g 50 -c 0.01 -e))"],
-    ["Oza(SGBT(FIRTDD))", "Z",  "meta.OzaBag -s 50 -l (meta.StreamingGradientBoostedTrees -t -L 1.0 -m 75 -s 2 -l (trees.FIMTDD -s VarianceReductionSplitCriterion -g 50 -c 0.01 -e))"],
-    ["Oza(SGBT(FIRTDD))", "Z",  "meta.OzaBag -s 100 -l (meta.StreamingGradientBoostedTrees -t -L 1.0 -m 75 -s 1 -l (trees.FIMTDD -s VarianceReductionSplitCriterion -g 50 -c 0.01 -e))"]
+    ["Oza_1(SGBT_100)", "Z",  "meta.OzaBag -s 1 -l (meta.StreamingGradientBoostedTrees -t -L 1.0 -m 75 -s 100 -l (trees.FIMTDD -s VarianceReductionSplitCriterion -g 50 -c 0.01 -e))"],
+    ["Oza_2(SGBT_50)", "Z",  "meta.OzaBag -s 2 -l (meta.StreamingGradientBoostedTrees -t -L 1.0 -m 75 -s 50 -l (trees.FIMTDD -s VarianceReductionSplitCriterion -g 50 -c 0.01 -e))"],
+    ["Oza_4(SGBT_25)", "Z",  "meta.OzaBag -s 4 -l (meta.StreamingGradientBoostedTrees -t -L 1.0 -m 75 -s 25 -l (trees.FIMTDD -s VarianceReductionSplitCriterion -g 50 -c 0.01 -e))"],
+    ["Oza_5(SGBT_20)", "Z",  "meta.OzaBag -s 5 -l (meta.StreamingGradientBoostedTrees -t -L 1.0 -m 75 -s 20 -l (trees.FIMTDD -s VarianceReductionSplitCriterion -g 50 -c 0.01 -e))"],
+    ["Oza_10(SGBT_10)", "Z",  "meta.OzaBag -s 10 -l (meta.StreamingGradientBoostedTrees -t -L 1.0 -m 75 -s 10 -l (trees.FIMTDD -s VarianceReductionSplitCriterion -g 50 -c 0.01 -e))"],
+    ["Oza_20(SGBT_5)", "Z",  "meta.OzaBag -s 20 -l (meta.StreamingGradientBoostedTrees -t -L 1.0 -m 75 -s 5 -l (trees.FIMTDD -s VarianceReductionSplitCriterion -g 50 -c 0.01 -e))"],
+    ["Oza_25(SGBT_4)", "Z",  "meta.OzaBag -s 25 -l (meta.StreamingGradientBoostedTrees -t -L 1.0 -m 75 -s 4 -l (trees.FIMTDD -s VarianceReductionSplitCriterion -g 50 -c 0.01 -e))"],
+    ["Oza_50(SGBT_2)", "Z",  "meta.OzaBag -s 50 -l (meta.StreamingGradientBoostedTrees -t -L 1.0 -m 75 -s 2 -l (trees.FIMTDD -s VarianceReductionSplitCriterion -g 50 -c 0.01 -e))"],
+    ["Oza_100(SGBT_1)", "Z",  "meta.OzaBag -s 100 -l (meta.StreamingGradientBoostedTrees -t -L 1.0 -m 75 -s 1 -l (trees.FIMTDD -s VarianceReductionSplitCriterion -g 50 -c 0.01 -e))"]
   ]
 }

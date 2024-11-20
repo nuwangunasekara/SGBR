@@ -44,7 +44,7 @@ experiment = 'learner'
 def get_grouped_and_sorted_data(point, measurement):
     grouped_data = df.groupby([point]).agg(
         mean=(measurement[0], 'mean'),
-        std=(measurement[0], 'sem')
+        std=(measurement[0], 'std')
     ).reset_index()
 
     grouped_data_sorted = grouped_data.sort_values(by=point)
@@ -56,20 +56,20 @@ def get_grouped_and_sorted_data(point, measurement):
 # Generate some data
 p1 = points[0]
 m1 = measurements[0]
-grouped_data_1 = get_grouped_and_sorted_data(p1, m1)
-x1 = grouped_data_1[p1]
-y1_mean = grouped_data_1['mean']
-y1_std = grouped_data_1['std']
+# grouped_data_1 = get_grouped_and_sorted_data(p1, m1)
+# x1 = grouped_data_1[p1]
+# y1_mean = grouped_data_1['mean']
+# y1_std = grouped_data_1['std']
 s = m1[3]
 x1 = sheets_dict[s]['boosting_iterations']
 y1_mean = sheets_dict[s]['mean']
 y1_std = sheets_dict[s]['std']
 
 m2 = measurements[1]
-grouped_data_2 = get_grouped_and_sorted_data(p1, m2)
-x2 = grouped_data_2[p1]
-y2_mean = grouped_data_2['mean']
-y2_std = grouped_data_2['std']
+# grouped_data_2 = get_grouped_and_sorted_data(p1, m2)
+# x2 = grouped_data_2[p1]
+# y2_mean = grouped_data_2['mean']
+# y2_std = grouped_data_2['std']
 s = m2[3]
 x2 = sheets_dict[s][p1]
 y2_mean = sheets_dict[s]['mean']
@@ -115,7 +115,6 @@ ax2.set_ylabel(m2[1], color=m2[2])
 ax2.tick_params(axis='y', labelcolor=m2[2])
 # Annotating specific points
 annotations = [ (x2[i], y2_mean[i]) for i, _ in enumerate(x2) if x2[i] not in [] ]
-# annotations = []
 
 for point in annotations:
     ax2.annotate(f'({point[0]}, {100//point[0]})', xy=point,

@@ -9,7 +9,7 @@ import re
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-r", "--resultsDir", type=str, help="Results directory",
-                    default='./output_SGBT_5(OZA 20)_with_best_baseline_comparision/')
+                    default='./output_oza_sgbt_para_search/')
 args = parser.parse_args()
 
 random_seed_option = '-Z'
@@ -195,6 +195,18 @@ row_order = [
     ['SRP(FIRTDD).csv', '\\acrshort{srpreg}'],
     ['FIRTDD.csv', '\\acrshort{firtdd}'],
     ['HT.csv', '\\acrshort{htr}'],
+]
+
+row_order = [
+    ['Oza_1(SGBT_100).csv', '1,100'],
+    ['Oza_2(SGBT_50).csv', '2,50'],
+    ['Oza_4(SGBT_25).csv', '4,25'],
+    ['Oza_5(SGBT_20).csv', '5,20'],
+    ['Oza_10(SGBT_10).csv', '10,10'],
+    ['Oza_20(SGBT_5).csv', '20,5'],
+    ['Oza_25(SGBT_4).csv', '25,4'],
+    ['Oza_50(SGBT_2).csv', '50,2'],
+    ['Oza_100(SGBT_1).csv', '100,1'],
 ]
 
 row_order = [
