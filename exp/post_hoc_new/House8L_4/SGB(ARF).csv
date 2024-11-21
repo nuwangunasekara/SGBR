@@ -1,0 +1,2 @@
+learning evaluation instances,evaluation time (cpu seconds),evaluation time (wall) (seconds),model cost (RAM-Hours),classified instances,mean absolute error,root mean squared error,relative mean absolute error,relative root mean squared error,coefficient of determination,adjusted coefficient of determination,model training instances,model serialized size (bytes)
+22784.0,16.5625,19.822999954223633,0.0,22784.0,18767.46355599973,35376.62983152158,0.5768372916382223,0.6692465299886337,0.5521090820981729,0.5519320812085129,22784.0,0.0
