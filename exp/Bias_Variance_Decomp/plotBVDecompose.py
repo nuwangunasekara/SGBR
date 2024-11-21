@@ -5,7 +5,7 @@ import argparse
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-d", "--dataset", type=str, help="arff dataset", default='ailerons')
-parser.add_argument("-r", "--results_dir", type=str, help="results directory", default='/Users/ng98/Desktop/CODE/CapyMOA_Latest/RESULTS/')
+parser.add_argument("-r", "--results_dir", type=str, help="results directory", default='./RESULTS/')
 args = parser.parse_args()
 
 # Read data from CSV file
@@ -24,7 +24,7 @@ plt.figure(figsize=(18, 11))
 # bv_component = {'sqrt_mean_bias': [':', r'$\sqrt{mean(bias)}$'], 'sqrt_mean_var': ['--', r'$\sqrt{mean(variance)}$']}
 # bv_component = {'sqrt_mean_bias': [':', r'$\sqrt{bias}$'], 'sqrt_mean_var': ['--', r'$\sqrt{variance}$']}
 bv_component = {'sqrt_mean_bias': [':', r'$\sqrt{bias}$', 'green'], 'sqrt_mean_var': ['-', r'$\sqrt{variance}$', 'red']}
-methods = {'B': [r'$SGBT$', 'red'], 'BB': [r'$SGBT(Oza)$', 'green'], 'BagB': [r'$Oza(SGBT)$', 'blue']}
+methods = {'B': [r'$SGBT$', 'red'], 'BB': [r'$SGB(Oza)$', 'green'], 'BagB': [r'$Oza(SGBT)$', 'blue']}
 # methods = {'B': 'red'}
 
 for method in df['method'].unique():

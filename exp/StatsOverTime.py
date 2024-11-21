@@ -86,7 +86,7 @@ items_to_plot = [
 ]
 
 methods = {
-    'SGBT(Oza(FIRTDD)).csv': [r'SGBT(Oza)', 'red'],
+    'SGBT(Oza(FIRTDD)).csv': [r'SGB(Oza)', 'red'],
     'SOKNL(FIRTDD).csv': [r'$SOKNL$', 'green'],
     'ARFReg(FIRTDD).csv': [r'$ARFReg$', 'green'],
     'Oza(FIRTDD).csv': [r'$OzaReg$', 'green'],
