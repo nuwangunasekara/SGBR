@@ -78,7 +78,7 @@ public class StreamingGradientBoostedTrees extends AbstractClassifier implements
             "Percentage of attributes % for each boosting iteration.", 75, Integer.MIN_VALUE, Integer.MAX_VALUE);
     public FloatOption learningRateOption = new FloatOption(
             "learningRate", 'L', "Learning rate",
-            0.0125, 0, 1.00);
+            0.0125, 0, 10.00);
     public FlagOption disableOneHotEncoding = new FlagOption("disableOneHotEncoding", 'H', "disable one-hot encoding for regressors that supports nominal attributes.");
     public IntOption multipleIterationByCeilingOfHessianTimesM = new IntOption("multipleIterationByCeilingOfHessianTimesM", 'M',
             "Multiple training iterations by Ceiling (Hessian * M). M = 1: No multiple iterations.", 1, 1, 100);
@@ -362,7 +362,7 @@ public class StreamingGradientBoostedTrees extends AbstractClassifier implements
                     "Percentage of attributes % for each boosting iteration.", 75, Integer.MIN_VALUE, Integer.MAX_VALUE);
             public FloatOption learningRateOption = new FloatOption(
                     "learningRate", 'L', "Learning rate",
-                    0.0125, 0, 1.00);
+                    0.0125, 0, 10.00);
             public FlagOption useOneHotEncoding = new FlagOption("useOneHotEncoding", 'h', "useOneHotEncoding");
             public IntOption multipleIterationByCeilingOfHessianTimesM = new IntOption("multipleIterationByCeilingOfHessianTimesM", 'M',
                     "Multiple training iterations by Ceiling (Hessian * M).", 1, 1, 100);

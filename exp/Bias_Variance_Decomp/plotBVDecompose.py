@@ -23,8 +23,8 @@ plt.figure(figsize=(18, 11))
 
 # bv_component = {'sqrt_mean_bias': [':', r'$\sqrt{mean(bias)}$'], 'sqrt_mean_var': ['--', r'$\sqrt{mean(variance)}$']}
 # bv_component = {'sqrt_mean_bias': [':', r'$\sqrt{bias}$'], 'sqrt_mean_var': ['--', r'$\sqrt{variance}$']}
-bv_component = {'sqrt_mean_bias': [':', r'$\sqrt{bias}$', 'green'], 'sqrt_mean_var': ['-', r'$\sqrt{variance}$', 'red']}
-methods = {'B': [r'$SGBT$', 'red'], 'BB': [r'$SGB(Oza)$', 'green'], 'BagB': [r'$Oza(SGBT)$', 'blue']}
+bv_component = {'sqrt_mean_bias': ['--', r'$\sqrt{bias}$', 'green'], 'sqrt_mean_var': ['-', r'$\sqrt{variance}$', 'red']}
+methods = {'B': [r'$SGBT$', '#fec44f'], 'BB': [r'$SGB(Oza)$', '#000000'], 'BagB': [r'$Oza(SGBT)$', '#993404']}
 # methods = {'B': 'red'}
 
 for method in df['method'].unique():

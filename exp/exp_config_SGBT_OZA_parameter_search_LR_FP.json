@@ -1,0 +1,21 @@
+{
+  "moa_jar": "./moa.jar",
+  "java_options":"-Xmx12g -Xms50m -Xss1g moa.DoTask",
+  "output_dir":"./output_sgbt_oza_para_search_LR_FP/",
+  "evaluator": "EvaluatePrequentialRegression -e BasicRegressionPerformanceEvaluator",
+  "dataset_dir":"./RDatasets/",
+  "datasets":["House8L","MetroTraffic","abalone","ailerons","bike","elevators","fried","hyperA","FriedmanGra","FriedmanGsg","FriedmanLea"],
+  "streams": {"<dataset_name>": "stream_command","random_seed_options": ["-r"]},
+  "random_seeds": [1,2,3,4,5],
+  "learners":[
+    ["SGBT_10_0.5_25(Oza_10)", "Z",  "meta.StreamingGradientBoostedTrees -t -L 0.5 -m 25 -s 10 -l (meta.OzaBag -s 10 -l (trees.FIMTDD -s VarianceReductionSplitCriterion -g 50 -c 0.01 -e))"],
+    ["SGBT_10_0.5_75(Oza_10)", "Z",  "meta.StreamingGradientBoostedTrees -t -L 0.5 -m 75 -s 10 -l (meta.OzaBag -s 10 -l (trees.FIMTDD -s VarianceReductionSplitCriterion -g 50 -c 0.01 -e))"],
+    ["SGBT_10_0.5_100(Oza_10)", "Z",  "meta.StreamingGradientBoostedTrees -t -L 0.5 -m 100 -s 10 -l (meta.OzaBag -s 10 -l (trees.FIMTDD -s VarianceReductionSplitCriterion -g 50 -c 0.01 -e))"],
+    ["SGBT_10_1.0_25(Oza_10)", "Z",  "meta.StreamingGradientBoostedTrees -t -L 1.0 -m 25 -s 10 -l (meta.OzaBag -s 10 -l (trees.FIMTDD -s VarianceReductionSplitCriterion -g 50 -c 0.01 -e))"],
+    ["SGBT_10_1.0_75(Oza_10)", "Z",  "meta.StreamingGradientBoostedTrees -t -L 1.0 -m 75 -s 10 -l (meta.OzaBag -s 10 -l (trees.FIMTDD -s VarianceReductionSplitCriterion -g 50 -c 0.01 -e))"],
+    ["SGBT_10_1.0_100(Oza_10)", "Z",  "meta.StreamingGradientBoostedTrees -t -L 1.0 -m 100 -s 10 -l (meta.OzaBag -s 10 -l (trees.FIMTDD -s VarianceReductionSplitCriterion -g 50 -c 0.01 -e))"],
+    ["SGBT_10_1.5_25(Oza_10)", "Z",  "meta.StreamingGradientBoostedTrees -t -L 1.5 -m 25 -s 10 -l (meta.OzaBag -s 10 -l (trees.FIMTDD -s VarianceReductionSplitCriterion -g 50 -c 0.01 -e))"],
+    ["SGBT_10_1.5_75(Oza_10)", "Z",  "meta.StreamingGradientBoostedTrees -t -L 1.5 -m 75 -s 10 -l (meta.OzaBag -s 10 -l (trees.FIMTDD -s VarianceReductionSplitCriterion -g 50 -c 0.01 -e))"],
+    ["SGBT_10_1.5_100(Oza_10)", "Z",  "meta.StreamingGradientBoostedTrees -t -L 1.5 -m 100 -s 10 -l (meta.OzaBag -s 10 -l (trees.FIMTDD -s VarianceReductionSplitCriterion -g 50 -c 0.01 -e))"]
+  ]
+}

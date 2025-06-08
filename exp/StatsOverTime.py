@@ -86,10 +86,10 @@ items_to_plot = [
 ]
 
 methods = {
-    'SGBT(Oza(FIRTDD)).csv': [r'SGB(Oza)', 'red'],
-    'SOKNL(FIRTDD).csv': [r'$SOKNL$', 'green'],
-    'ARFReg(FIRTDD).csv': [r'$ARFReg$', 'green'],
-    'Oza(FIRTDD).csv': [r'$OzaReg$', 'green'],
+    'SGBT(Oza(FIRTDD)).csv': [r'SGB(Oza)', '#000000', '-'],
+    'SOKNL(FIRTDD).csv': [r'$SOKNL$', '#000000', ':'],
+    'ARFReg(FIRTDD).csv': [r'$ARFReg$', '#000000', (0, (3, 10, 1, 10))],
+    'Oza(FIRTDD).csv': [r'$OzaReg$', '#000000', (5, (10, 3))],
 }
 
 plt.rc('xtick', labelsize=8)    # fontsize of the tick labels
@@ -130,9 +130,11 @@ for learner_to_plot in learners_to_plot:
             else:
                 tmp_axs = axs[i]
             label = methods[pd_plot.columns[0]][0]
+            colour = methods[pd_plot.columns[0]][1]
+            linestyle = methods[pd_plot.columns[0]][2]
             # tmp_axs.plot(pd_plot['learning evaluation instances'], pd_plot[plot_item], color=color,
             #             linestyle=linestyle, marker=m, label=label.replace('_', ' '), lw=0.5, mew=0.05, ms=0.05)
-            tmp_axs.plot(pd_plot['learning evaluation instances'], pd_plot[pd_plot.columns[0]],label=label, lw=0.5, mew=0.05, ms=0.05)
+            tmp_axs.plot(pd_plot['learning evaluation instances'], pd_plot[pd_plot.columns[0]],label=label, lw=0.5, mew=0.05, ms=0.05, color=colour, linestyle=linestyle)
 
             i += 1
 
