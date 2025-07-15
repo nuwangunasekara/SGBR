@@ -1,10 +1,10 @@
 {
   "moa_jar": "./moa.jar",
-  "java_options":"-Xmx12g -Xms50m -Xss1g moa.DoTask",
+  "java_options":"-Xmx48g -Xms50m -Xss1g moa.DoTask",
   "output_dir":"./output/",
-  "evaluator": "EvaluatePrequentialRegression -e BasicRegressionPerformanceEvaluator",
+  "evaluator": "EvaluatePrequentialRegression -e BasicRegressionPerformanceEvaluator  -f 10000000 -q 10000000",
   "dataset_dir":"./RDatasets/",
-  "datasets":["House8L","MetroTraffic","abalone","ailerons","bike","elevators","fried","hyperA","FriedmanGra","FriedmanGsg","FriedmanLea"],
+  "datasets":["House8L","MetroTraffic","abalone","ailerons","bike","elevators","fried","hyperA","FriedmanGra","FriedmanGsg","FriedmanLea", "DemandF", "NZEnergy", "SUP2I", "SUP3A", "SUP3G"],
   "streams": {"<dataset_name>": "stream_command","random_seed_options": ["-r"]},
   "random_seeds": [1,2,3,4,5],
   "learners":[
@@ -12,16 +12,13 @@
     ["SRP(SGBT(FIRTDD))", "Z",  "meta.StreamingRandomPatches -s 10 -l (meta.StreamingGradientBoostedTrees -t -L 1.0 -m 75 -s 10 -l (trees.FIMTDD -s VarianceReductionSplitCriterion -g 50 -c 0.01 -e))"],
     ["SGBT(Oza(FIRTDD))", "Z",  "meta.StreamingGradientBoostedTrees -t -L 1.0 -m 75 -s 10 -l (meta.OzaBag -s 10 -l (trees.FIMTDD -s VarianceReductionSplitCriterion -g 50 -c 0.01 -e))"],
     ["SGBT(ARFReg(FIRTDD))", "Z",  "meta.StreamingGradientBoostedTrees -t -L 1.0 -m 75 -s 10 -l (meta.AdaptiveRandomForestRegressor -s 10 -x (ADWINChangeDetector -a 0.001) -p (ADWINChangeDetector -a 0.01))"],
-    ["SGBT(SOKNL(FIRTDD))", "Z",  "meta.StreamingGradientBoostedTrees -t -L 1.0 -m 75 -s 10 -l (meta.SelfOptimisingKNearestLeaves -s 10 -l (SelfOptimisingBaseTree -s VarianceReductionSplitCriterion -g 50 -c 0.01) -x (ADWINChangeDetector -a 0.001) -p (ADWINChangeDetector -a 0.01))"],
     ["SGBT(SRP(FIRTDD))", "Z",  "meta.StreamingGradientBoostedTrees -t -L 1.0 -m 75 -s 10 -l (meta.StreamingRandomPatches -s 10 -l (trees.FIMTDD -s VarianceReductionSplitCriterion -g 50 -c 0.01 -e))"],
     ["Oza(FIRTDD)", "Z",  "meta.OzaBag -s 100 -l (trees.FIMTDD -s VarianceReductionSplitCriterion -g 50 -c 0.01 -e)"],
     ["ARFReg(FIRTDD)", "Z",  "meta.AdaptiveRandomForestRegressor -s 100 -x (ADWINChangeDetector -a 0.001) -p (ADWINChangeDetector -a 0.01)"],
     ["SOKNL(FIRTDD)", "Z",  "meta.SelfOptimisingKNearestLeaves -s 100 -l (SelfOptimisingBaseTree -s VarianceReductionSplitCriterion -g 50 -c 0.01) -x (ADWINChangeDetector -a 0.001) -p (ADWINChangeDetector -a 0.01)"],
     ["SRP(FIRTDD)", "Z",  "meta.StreamingRandomPatches -s 100 -l (trees.FIMTDD -s VarianceReductionSplitCriterion -g 50 -c 0.01 -e)"],
     ["FIRTDD", "",  "trees.FIMTDD -s VarianceReductionSplitCriterion -g 50 -c 0.01 -e"],
-    ["HAT", "",  "trees.HoeffdingAdaptiveRegressionTree -k -n HoeffdingNumericAttributeClassObserver -d HoeffdingNominalAttributeClassObserver"],
     ["HT", "",  "trees.HoeffdingRegressionTree -k -n HoeffdingNumericAttributeClassObserver -d HoeffdingNominalAttributeClassObserver"],
-    ["SGT", "",  "trees.StreamingGradientTreePredictor"],
     ["SGBT(FIRTDD)", "Z",  "meta.StreamingGradientBoostedTrees -t -L 1.0 -m 75 -s 100 -l (trees.FIMTDD -s VarianceReductionSplitCriterion -g 50 -c 0.01 -e)"],
     ["AXGBr", "",  "meta.AdaptiveXGBoostClassifier -s 10"]
   ]

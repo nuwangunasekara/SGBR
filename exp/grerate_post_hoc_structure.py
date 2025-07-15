@@ -8,8 +8,8 @@ import shutil
 
 
 # Define the topmost directory
-from_dir = './output_baseline_comparision'
-to_dir = './post_hoc'
+from_dir = './output'
+to_dir = './post_hoc_new'
 
 # List of subdirectories
 random_seeds = ['1', '2', '3', '4', '5']
@@ -20,6 +20,11 @@ datasets_to_copy = [
     'abalone', 'ailerons', 'bike', 'elevators', 'fried', 'hyperA'
 ]
 
+datasets_to_copy = [
+    'FriedmanGra', 'FriedmanGsg', 'FriedmanLea', 'House8L', 'MetroTraffic',
+    'abalone', 'ailerons', 'bike', 'elevators', 'fried', 'hyperA', 'DemandF', 'NZEnergy', 'SUP2I', 'SUP3A', 'SUP3G'
+]
+
 algo_to_copy = [
     ['Oza(SGBT(FIRTDD)).csv', 'Oza(SGBT).csv'],
     ['SGBT(Oza(FIRTDD)).csv', 'SGBT(Oza).csv'],
@@ -27,7 +32,6 @@ algo_to_copy = [
     ['Oza(FIRTDD).csv', 'OzaReg.csv'],
     ['ARFReg(FIRTDD).csv', 'ARFReg.csv'],
     ['SOKNL(FIRTDD).csv', 'SOKNL.csv'],
-    ['AXGBr.csv', 'AXGB.csv'],
 ]
 
 
@@ -75,4 +79,4 @@ for r in random_seeds:
             # else:
             #     print(f"Folder does not exist: {original_folder_path}")
 
-print("All folders have been moved.")
+print("All folders have been copied.")

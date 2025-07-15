@@ -9,7 +9,7 @@ import re
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-r", "--resultsDir", type=str, help="Results directory",
-                    default='./output_sgbt_oza_para_search_lr_fp')
+                    default='./output')
 args = parser.parse_args()
 
 random_seed_option = '-Z'
@@ -20,7 +20,7 @@ random_seed_option = '-Z'
 column_order = ['fried', 'House8L', 'abalone', 'bike', 'elevators', 'MetroTraffic', 'ailerons', 'hyperA', 'FriedmanLea',
                 'FriedmanGra', 'FriedmanGsg']
 column_order = ['fried', 'House8L', 'abalone', 'bike', 'elevators', 'MetroTraffic', 'ailerons', 'FriedmanLea', 'FriedmanGra', 'FriedmanGsg',  'hyperA']
-
+column_order = ['fried', 'House8L', 'abalone', 'bike', 'elevators', 'MetroTraffic', 'ailerons', 'FriedmanLea', 'FriedmanGra', 'FriedmanGsg',  'hyperA', 'DemandF', 'NZEnergy', 'SUP2I', 'SUP3A', 'SUP3G']
 
 # pv_table_values = {
 #     'classifications correct (percent)':{'name': 'Acc', 'ascending': False},
@@ -246,6 +246,22 @@ row_order = [
     ['SGBT_10_1.5_100(Oza_10).csv', '1.5,100'],
 ]
 
+row_order = [
+    ['Oza(SGBT(FIRTDD)).csv', '\\acrshort{ozasgbt}'],
+    ['SRP(SGBT(FIRTDD)).csv', '\\acrshort{srpsgbt}'],
+    ['SGBT(Oza(FIRTDD)).csv', '\\acrshort{sgbtoza}'],
+    ['SGBT(ARFReg(FIRTDD)).csv', '\\acrshort{sgbtarf}'],
+    ['SGBT(SRP(FIRTDD)).csv', '\\acrshort{sgbtsrp}'],
+    ['SGBT(FIRTDD).csv', '\\acrshort{sgbt}'],
+    ['AXGBr.csv', '\\acrshort{axgb}'],
+    ['Oza(FIRTDD).csv', '\\acrshort{ozareg}'],
+    ['ARFReg(FIRTDD).csv', '\\acrshort{arfreg}'],
+    ['SOKNL(FIRTDD).csv', '\\acrshort{soknl}'],
+    ['SRP(FIRTDD).csv', '\\acrshort{srpreg}'],
+    ['FIRTDD.csv', '\\acrshort{firtdd}'],
+    ['HT.csv', '\\acrshort{htr}'],
+]
+
 # row_order = [
 #     ['FIRTDD.csv', '\\acrshort{firtdd}'],
 #     ['HT.csv', '\\acrshort{htr}'],
@@ -410,16 +426,26 @@ def print_cell(df, idx, col, h_min, print_std=True, end_str=" & ", d=1):
         best_d_idx = df[col].idxmin()
     else:
         best_d_idx = df[col].idxmax()
-    if print_std:
-        if best_d_idx == idx:
-            print(f"\\textbf{{ {df.at[idx, col]:.{d}f} }} $\\pm$ {df.at[idx, f'std_{col}']:.{d}f}", end=end_str)
-        else:
-            print(f"{df.at[idx, col]:.{d}f} $\\pm$ {df.at[idx, f'std_{col}']:.{d}f}", end=end_str)
+
+    value = df.at[idx, col]
+    if value > 1000 or value < -100:
+        value = f"{value:.1e}"  # Scientific notation with 1 decimal places
     else:
-        if best_d_idx == idx:
-            print(f"\\textbf{{ {df.at[idx, col]:.{d}f} }}", end=end_str)
+        value = f"{value:.{d}f}" # Fixed-point with d decimal places
+
+    std = ' '
+    if print_std:
+        std = df.at[idx, f'std_{col}']
+        if std > 1000:
+            std = f"{std:.1e}"  # Scientific notation with 1 decimal places
         else:
-            print(f"{df.at[idx, col]:.{d}f}", end=end_str)
+            std = f"{std:.{d}f}" # Fixed-point with d decimal places
+        std = f' $\\pm$ {std}'
+
+    if best_d_idx == idx:
+        print(f"\\textbf{{ {value} }}{std}", end=end_str)
+    else:
+        print(f"{value}{std}", end=end_str)
 
 
 def print_df(df, datasets, t_info, print_std):
