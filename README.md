@@ -18,8 +18,14 @@
 ``mkdir outout output_stats``
 ### go to dataset folder
 ``cd RDatasets``
-### Unzip hyperA.arff.zip
+### Unzip dataset files
 ``unzip hyperA.arff.zip``
+
+``unzip DemandF.arff.zip``
+
+``unzip NZEnergy.arff.zip``
+
+plsease contact authors for copy of `SUP2I.arff`, `SUP3A.arff` and `SUP3G.arff`
 ### go level up (at exp)
 ``cd ..``
 ## Run Wall time experiments
