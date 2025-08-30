@@ -1,3 +1,5 @@
+# News
+- **SGBR** is now available on latest [MOA](https://github.com/Waikato/moa) (30/08/2025)
 # How to build experiment setup
 ## Go to source root.
 ## Go to MOA source
