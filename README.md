@@ -1,3 +1,5 @@
+# Streaming Gradient Boosted Regression (SGBR)
+- Paper: [Gradient boosted bagging for evolving data stream regression](https://doi.org/10.1007/s10618-025-01147-x)
 # News
 - **SGBR** is now available on latest [MOA](https://github.com/Waikato/moa) (30/08/2025)
 # How to build experiment setup
@@ -39,7 +41,20 @@ plsease contact authors for copy of `SUP2I.arff`, `SUP3A.arff` and `SUP3G.arff`
 
 ```python benchmark_moa.py -f Plot_Hyper_LearningRate_FeatureP_twiny.py```
 
-
+# Cite this work
+```
+@article{gunasekara2025gradient,
+  title={Gradient boosted bagging for evolving data stream regression},
+  author={Gunasekara, Nuwan and Pfahringer, Bernhard and Gomes, Heitor Murilo and Bifet, Albert},
+  journal={Data mining and knowledge discovery},
+  volume={39},
+  number={5},
+  pages={1--37},
+  year={2025},
+  doi={https://doi.org/10.1007/s10618-025-01147-x}
+  publisher={Springer}
+}
+```
 
 # MOA (Massive Online Analysis)
 [![Build Status](https://travis-ci.org/Waikato/moa.svg?branch=master)](https://travis-ci.org/Waikato/moa)
