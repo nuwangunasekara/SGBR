@@ -1,8 +1,9 @@
 # Streaming Gradient Boosted Regression (SGBR)
 - Paper: [Gradient boosted bagging for evolving data stream regression](https://doi.org/10.1007/s10618-025-01147-x)
 # News
+- **SGBR** is now available on latest [CapyMOA](https://github.com/adaptive-machine-learning/CapyMOA) (13/09/2025)
 - **SGBR** is now available on latest [MOA](https://github.com/Waikato/moa) (30/08/2025)
-# How to build experiment setup
+# How to build the experiment setup
 ## Go to source root.
 ## Go to MOA source
 ``cd moa``
